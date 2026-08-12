@@ -1,0 +1,6 @@
+{
+    "coverage-gutters.coverageFile": "${workspaceFolder}/TestResults/CoverageReport/Cobertura.xml",
+    "coverage-gutters.showGutterCoverage": true,
+    "coverage-gutters.showLineCoverage": true,
+    "coverage-gutters.showRulerCoverage": true
+}

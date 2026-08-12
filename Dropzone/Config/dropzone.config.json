@@ -1,0 +1,16 @@
+{
+  "jobs": [
+    {
+      "name": "Atea Invoice License",
+      "urlRegex": ".*atea.*licens.*|.*invoice.*",
+      "domainName": "atea.se",
+      "handlerType": "AteaInvoiceHandler",
+      "viewType": "GridAndCommentView",
+      "handlerConfig": {
+        "pythonScript": "C:\\path\\to\\InvoiceHelper.py",
+        "pythonExe": "python"
+      }
+    }
+  ]
+}
+

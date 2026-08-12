@@ -1,0 +1,29 @@
+---
+description: Job / Handler / View naming — config-first extensibility
+alwaysApply: true
+---
+
+# Naming: Job, Handler, View
+
+| Layer | Names | Belongs in |
+|-------|--------|------------|
+| **Job** | Business case (may include vendor/product) | Config `name`, matching rules |
+| **Handler** | Execution strategy only | `*Handler` class + `handlerType` |
+| **View** | Result presentation contract | `*View` + `viewType` |
+
+## Rules
+
+- Do **not** put company/vendor names in handler or view type names.
+- Prefer a new **job config** entry when an existing handler + view already fit.
+- Add a new **`IJobHandler`** only when the execution path or result contract cannot be expressed by config.
+- Add a new **view** when the UI for `JobResult` differs.
+- Prefer job config for result title/type metadata; avoid hard-coding vendor strings in generic handlers.
+
+## Examples
+
+- Good handler: `PythonScriptHandler`
+- Avoid: `AteaInvoiceHandler` (legacy name; rename when touching that area)
+- Good job name: `"Atea Invoice License"`
+- Good view: `GridAndCommentView`
+
+Details and checklists: `DEVELOPMENT.md`.

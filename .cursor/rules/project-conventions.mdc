@@ -1,0 +1,27 @@
+---
+description: Language, commits, and doc conventions for Dropzone
+alwaysApply: true
+---
+
+# Project conventions
+
+## Language
+
+- **Code, commits, shared docs**: English (identifiers, errors, logs, README, DEVELOPMENT.md, XML comments).
+- **Team chat / PR discussion / local `dev-notes.md`**: Swedish is fine.
+
+## Commits
+
+Use Conventional Commits in English, optional scope:
+
+- `feat(handler): Add PythonScriptHandler`
+- `fix(config): Match file extension in URL path`
+- `docs: Update DEVELOPMENT naming guide`
+
+Types: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `perf`, `ci`, `build`.
+
+## Docs source of truth
+
+- Architecture and naming details: `DEVELOPMENT.md`
+- Shared backlog: `TODO.md`
+- Do not duplicate long guides inside rules; keep rules short and actionable.

@@ -1,0 +1,24 @@
+# Build output
+**/bin/
+**/obj/
+
+# Test results and coverage
+TestResults/
+coverage*.json
+*.cobertura.xml
+*.opencover.xml
+
+# Visual Studio / Rider
+.vs/
+*.user
+*.suo
+*.useros
+*.sln.docstates
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Local development notes (not shared)
+dev-notes.md
