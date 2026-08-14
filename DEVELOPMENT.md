@@ -125,7 +125,45 @@ For Python jobs managed with [uv](https://docs.astral.sh/uv/), point config at t
 - Dropzone invokes: `pythonExe "pythonScript" "inputFile"` with that working directory.
 - Stdout/stderr are read as **UTF-8** (`PYTHONIOENCODING` / `PYTHONUTF8` are also set for the child process). Scripts should emit UTF-8 JSON (`ensure_ascii=False` in Python is fine).
 
-**Script contract (implemented in the Python project, not in Dropzone):** accept the input file path as a CLI argument and write a single JSON object to stdout (`success`, `comment`, `rows` with `konProj` / `rg` / `aktivitet` / `projKa`). Log to stderr or files so stdout stays valid JSON.
+**Script contract (implemented in the Python project, not in Dropzone):** accept the input file path as a CLI argument and write a single JSON object to stdout. Log to stderr or files so stdout stays valid JSON.
+
+Row objects follow Medius Excel column order (A–J):
+
+```json
+{
+  "success": true,
+  "comment": "Medius comment text with \\n line breaks",
+  "rows": [
+    {
+      "konProj": "5420",
+      "empty1": "",
+      "rg": "10200",
+      "aktivitet": "738",
+      "projAkt": "",
+      "ean": "",
+      "projKat": "",
+      "empty2": "",
+      "netto": "144,21",
+      "godkantAv": "John Munthe"
+    }
+  ]
+}
+```
+
+| JSON | Grid / Excel |
+|------|----------------|
+| `konProj` | Kon/Proj |
+| `empty1` | (empty column B) |
+| `rg` | RG |
+| `aktivitet` | Aktivitet |
+| `projAkt` | ProjAkt |
+| `ean` | EAN |
+| `projKat` | ProjKat (`projKa` still accepted as legacy alias) |
+| `empty2` | (empty column H) |
+| `netto` | Netto (string; Swedish decimal comma is fine) |
+| `godkantAv` | Godkänt av |
+
+Omitted optional fields are treated as empty.
 
 ### Multiple matching jobs
 

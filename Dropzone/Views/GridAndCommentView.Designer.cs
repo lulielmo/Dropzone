@@ -48,11 +48,16 @@ partial class GridAndCommentView
         dataGridView.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithAutoHeaderText;
         dataGridView.Columns.AddRange(new DataGridViewColumn[]
         {
-            new DataGridViewTextBoxColumn { Name = "KonProj", HeaderText = "Kon/Proj", Width = 150 },
-            new DataGridViewTextBoxColumn { Name = "Empty", HeaderText = "", Width = 50 },
-            new DataGridViewTextBoxColumn { Name = "RG", HeaderText = "RG", Width = 100 },
-            new DataGridViewTextBoxColumn { Name = "Aktivitet", HeaderText = "Aktivitet", Width = 150 },
-            new DataGridViewTextBoxColumn { Name = "ProjKa", HeaderText = "ProjKa", Width = 150 }
+            new DataGridViewTextBoxColumn { Name = "KonProj", HeaderText = "Kon/Proj", MinimumWidth = 70 },
+            new DataGridViewTextBoxColumn { Name = "Empty1", HeaderText = "", MinimumWidth = 24 },
+            new DataGridViewTextBoxColumn { Name = "RG", HeaderText = "RG", MinimumWidth = 50 },
+            new DataGridViewTextBoxColumn { Name = "Aktivitet", HeaderText = "Aktivitet", MinimumWidth = 60 },
+            new DataGridViewTextBoxColumn { Name = "ProjAkt", HeaderText = "ProjAkt", MinimumWidth = 50 },
+            new DataGridViewTextBoxColumn { Name = "Ean", HeaderText = "EAN", MinimumWidth = 40 },
+            new DataGridViewTextBoxColumn { Name = "ProjKat", HeaderText = "ProjKat", MinimumWidth = 50 },
+            new DataGridViewTextBoxColumn { Name = "Empty2", HeaderText = "", MinimumWidth = 24 },
+            new DataGridViewTextBoxColumn { Name = "Netto", HeaderText = "Netto", MinimumWidth = 60 },
+            new DataGridViewTextBoxColumn { Name = "GodkantAv", HeaderText = "Godkänt av", MinimumWidth = 80 }
         });
         dataGridView.CellFormatting += dataGridView_CellFormatting;
         dataGridView.SelectionChanged += dataGridView_SelectionChanged;

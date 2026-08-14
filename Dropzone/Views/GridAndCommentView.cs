@@ -18,15 +18,20 @@ public partial class GridAndCommentView : UserControl
         dataGridView.Rows.Clear();
         commentTextBox.Text = string.Empty;
 
-        // Populate grid with rows
+        // Populate grid with rows (Medius Excel column order A–J)
         foreach (var row in result.Rows)
         {
             dataGridView.Rows.Add(
                 row.KonProj,
-                row.Empty ?? string.Empty,
+                row.Empty1 ?? string.Empty,
                 row.RG,
                 row.Aktivitet,
-                row.ProjKa ?? string.Empty
+                row.ProjAkt ?? string.Empty,
+                row.Ean ?? string.Empty,
+                row.ProjKat ?? string.Empty,
+                row.Empty2 ?? string.Empty,
+                row.Netto ?? string.Empty,
+                row.GodkantAv ?? string.Empty
             );
         }
 
@@ -59,4 +64,3 @@ public partial class GridAndCommentView : UserControl
         // Handle selection changes if needed
     }
 }
-

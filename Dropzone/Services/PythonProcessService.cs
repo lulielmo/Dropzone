@@ -79,7 +79,7 @@ public class PythonProcessService
         }
     }
 
-    private JobResult ParseJsonOutput(string jsonOutput)
+    internal JobResult ParseJsonOutput(string jsonOutput)
     {
         try
         {
@@ -99,14 +99,7 @@ public class PythonProcessService
             {
                 foreach (var rowElement in rowsElement.EnumerateArray())
                 {
-                    var row = new RowModel
-                    {
-                        KonProj = rowElement.TryGetProperty("konProj", out var kp) ? kp.GetString() ?? string.Empty : string.Empty,
-                        RG = rowElement.TryGetProperty("rg", out var rg) ? rg.GetString() ?? string.Empty : string.Empty,
-                        Aktivitet = rowElement.TryGetProperty("aktivitet", out var akt) ? akt.GetString() ?? string.Empty : string.Empty,
-                        ProjKa = rowElement.TryGetProperty("projKa", out var pk) ? pk.GetString() : null
-                    };
-                    result.Rows.Add(row);
+                    result.Rows.Add(ParseRow(rowElement));
                 }
             }
 
@@ -123,6 +116,37 @@ public class PythonProcessService
                 Rows = new List<RowModel>()
             };
         }
+    }
+
+    private static RowModel ParseRow(JsonElement rowElement)
+    {
+        return new RowModel
+        {
+            KonProj = GetString(rowElement, "konProj") ?? string.Empty,
+            Empty1 = GetString(rowElement, "empty1", "empty"),
+            RG = GetString(rowElement, "rg") ?? string.Empty,
+            Aktivitet = GetString(rowElement, "aktivitet") ?? string.Empty,
+            ProjAkt = GetString(rowElement, "projAkt"),
+            Ean = GetString(rowElement, "ean"),
+            // Accept legacy "projKa" from earlier contract versions
+            ProjKat = GetString(rowElement, "projKat", "projKa"),
+            Empty2 = GetString(rowElement, "empty2"),
+            Netto = GetString(rowElement, "netto"),
+            GodkantAv = GetString(rowElement, "godkantAv")
+        };
+    }
+
+    private static string? GetString(JsonElement element, params string[] propertyNames)
+    {
+        foreach (var name in propertyNames)
+        {
+            if (element.TryGetProperty(name, out var property) && property.ValueKind == JsonValueKind.String)
+            {
+                return property.GetString();
+            }
+        }
+
+        return null;
     }
 }
 

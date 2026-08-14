@@ -18,8 +18,13 @@ public class RowModelTests
         row.KonProj.Should().BeEmpty();
         row.RG.Should().BeEmpty();
         row.Aktivitet.Should().BeEmpty();
-        row.Empty.Should().BeNull();
-        row.ProjKa.Should().BeNull();
+        row.Empty1.Should().BeNull();
+        row.ProjAkt.Should().BeNull();
+        row.Ean.Should().BeNull();
+        row.ProjKat.Should().BeNull();
+        row.Empty2.Should().BeNull();
+        row.Netto.Should().BeNull();
+        row.GodkantAv.Should().BeNull();
     }
 
     [Fact]
@@ -29,18 +34,24 @@ public class RowModelTests
         var row = new RowModel
         {
             KonProj = "5420",
+            Empty1 = "",
             RG = "10000",
             Aktivitet = "738",
-            Empty = null,
-            ProjKa = "5420"
+            ProjAkt = "",
+            Ean = "",
+            ProjKat = "5420",
+            Empty2 = "",
+            Netto = "144,21",
+            GodkantAv = "John Munthe"
         };
 
         // Assert
         row.KonProj.Should().Be("5420");
         row.RG.Should().Be("10000");
         row.Aktivitet.Should().Be("738");
-        row.Empty.Should().BeNull();
-        row.ProjKa.Should().Be("5420");
+        row.ProjKat.Should().Be("5420");
+        row.Netto.Should().Be("144,21");
+        row.GodkantAv.Should().Be("John Munthe");
     }
 
     [Fact]
@@ -60,4 +71,3 @@ public class RowModelTests
         row.Aktivitet.Should().BeEmpty();
     }
 }
-

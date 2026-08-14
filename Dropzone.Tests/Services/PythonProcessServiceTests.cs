@@ -120,6 +120,70 @@ public class PythonProcessServiceTests
         }
     }
 
+    [Fact]
+    public void ParseJsonOutput_WithFullMediusRow_ShouldMapAllColumns()
+    {
+        var json = """
+            {
+              "success": true,
+              "comment": "Test",
+              "rows": [
+                {
+                  "konProj": "5420",
+                  "empty1": "",
+                  "rg": "10200",
+                  "aktivitet": "738",
+                  "projAkt": "",
+                  "ean": "",
+                  "projKat": "",
+                  "empty2": "",
+                  "netto": "144,21",
+                  "godkantAv": "John Munthe"
+                },
+                {
+                  "konProj": "P.20257601",
+                  "rg": "",
+                  "aktivitet": "738",
+                  "projKat": "5420",
+                  "netto": "7097,97",
+                  "godkantAv": "John Munthe"
+                }
+              ]
+            }
+            """;
+
+        var result = _service.ParseJsonOutput(json);
+
+        result.Success.Should().BeTrue();
+        result.Rows.Should().HaveCount(2);
+        result.Rows[0].KonProj.Should().Be("5420");
+        result.Rows[0].RG.Should().Be("10200");
+        result.Rows[0].Netto.Should().Be("144,21");
+        result.Rows[0].GodkantAv.Should().Be("John Munthe");
+        result.Rows[1].KonProj.Should().Be("P.20257601");
+        result.Rows[1].ProjKat.Should().Be("5420");
+        result.Rows[1].Netto.Should().Be("7097,97");
+    }
+
+    [Fact]
+    public void ParseJsonOutput_WithLegacyProjKa_ShouldMapToProjKat()
+    {
+        var json = """
+            {
+              "success": true,
+              "comment": "",
+              "rows": [
+                { "konProj": "P.20257407", "rg": "", "aktivitet": "738", "projKa": "5420" }
+              ]
+            }
+            """;
+
+        var result = _service.ParseJsonOutput(json);
+
+        result.Rows.Should().HaveCount(1);
+        result.Rows[0].ProjKat.Should().Be("5420");
+    }
+
     private static string? FindPythonExecutable()
     {
         foreach (var candidate in new[] { "python", "py" })
