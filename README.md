@@ -21,7 +21,7 @@ Drop / URL or file
 
 | Layer | Responsibility | Extends via |
 |-------|----------------|-------------|
-| **Job** | Business case: matching rules + display name | Config entry |
+| **Job** | Business case: matching rules + display name | Config entry (user picks if several match) |
 | **Handler** | Execution strategy: how input is processed | New `IJobHandler` when needed |
 | **View** | Presentation: how `JobResult` is shown | New view control when needed |
 
@@ -58,10 +58,12 @@ Jobs live in `Dropzone/Config/dropzone.config.json` (copied to the output direct
 Each job can define:
 
 - `name` — human-readable business case label
-- `urlRegex` / `domainName` / `fileExtension` — matching rules
+- `urlRegex` / `domainName` / `fileNameRegex` / `fileExtension` — matching rules
 - `handlerType` — registered handler class name
 - `viewType` — result view to show
-- `handlerConfig` — handler-specific settings (e.g. `pythonScript`, `pythonExe`)
+- `handlerConfig` — handler-specific settings (e.g. `pythonScript`, `pythonExe`, `workingDirectory`)
+
+For uv-based Python projects, set `pythonExe` to the project’s `.venv\Scripts\python.exe` and `workingDirectory` to the project root. See [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Tests
 

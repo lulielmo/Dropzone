@@ -29,6 +29,7 @@ public class AteaInvoiceHandler : IJobHandler
 
         var pythonScript = config.GetValueOrDefault("pythonScript", string.Empty);
         var pythonExe = config.GetValueOrDefault("pythonExe", "python");
+        var workingDirectory = config.GetValueOrDefault("workingDirectory", string.Empty);
 
         if (string.IsNullOrEmpty(pythonScript))
         {
@@ -50,6 +51,16 @@ public class AteaInvoiceHandler : IJobHandler
             };
         }
 
+        if (!string.IsNullOrWhiteSpace(workingDirectory) && !Directory.Exists(workingDirectory))
+        {
+            return new JobResult
+            {
+                Success = false,
+                ErrorMessage = $"Working directory not found: {workingDirectory}",
+                Comment = $"Error: Working directory not found at {workingDirectory}"
+            };
+        }
+
         if (!File.Exists(inputPath))
         {
             return new JobResult
@@ -60,7 +71,12 @@ public class AteaInvoiceHandler : IJobHandler
             };
         }
 
-        var result = await _pythonService.ExecuteScriptAsync(pythonExe, pythonScript, inputPath, cancellationToken);
+        var result = await _pythonService.ExecuteScriptAsync(
+            pythonExe,
+            pythonScript,
+            inputPath,
+            string.IsNullOrWhiteSpace(workingDirectory) ? null : workingDirectory,
+            cancellationToken);
         
         result.Type = "AteaInvoice";
         result.Title = "Atea Invoice License";

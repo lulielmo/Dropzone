@@ -209,6 +209,72 @@ public class ConfigLoaderTests : IDisposable
     }
 
     [Fact]
+    public void FindMatchingJobs_WithMultipleMatches_ShouldReturnAllInConfigOrder()
+    {
+        // Arrange
+        var configContent = """
+            {
+              "jobs": [
+                {
+                  "name": "ACP Job",
+                  "domainName": "mediusflow.com",
+                  "handlerType": "AteaInvoiceHandler",
+                  "viewType": "GridAndCommentView"
+                },
+                {
+                  "name": "Azure Job",
+                  "domainName": "mediusflow.com",
+                  "handlerType": "AteaInvoiceHandler",
+                  "viewType": "GridAndCommentView"
+                },
+                {
+                  "name": "Other Job",
+                  "domainName": "example.com",
+                  "handlerType": "OtherHandler",
+                  "viewType": "GridAndCommentView"
+                }
+              ]
+            }
+            """;
+        File.WriteAllText(_testConfigPath, configContent);
+        var loader = new ConfigLoader(_testConfigPath);
+        var url = "https://cloud.mediusflow.com/skekraft/Attachments/DownloadAttachment?metadataHash=abc";
+
+        // Act
+        var jobs = loader.FindMatchingJobs(url, null);
+
+        // Assert
+        jobs.Should().HaveCount(2);
+        jobs.Select(j => j.Name).Should().Equal("ACP Job", "Azure Job");
+    }
+
+    [Fact]
+    public void FindMatchingJobs_WithNoMatch_ShouldReturnEmptyList()
+    {
+        // Arrange
+        var configContent = """
+            {
+              "jobs": [
+                {
+                  "name": "Atea Job",
+                  "domainName": "atea.se",
+                  "handlerType": "AteaHandler",
+                  "viewType": "GridView"
+                }
+              ]
+            }
+            """;
+        File.WriteAllText(_testConfigPath, configContent);
+        var loader = new ConfigLoader(_testConfigPath);
+
+        // Act
+        var jobs = loader.FindMatchingJobs("https://example.com/file.pdf", null);
+
+        // Assert
+        jobs.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Load_WithHandlerConfig_ShouldDeserializeCorrectly()
     {
         // Arrange

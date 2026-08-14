@@ -88,17 +88,23 @@ public partial class MainForm : Form
     {
         try
         {
-            ShowProcessingView();
-
-            // Find matching job configuration
-            var jobConfig = _configLoader.FindMatchingJob(url, filePath);
-            if (jobConfig == null)
+            var matchingJobs = _configLoader.FindMatchingJobs(url, filePath);
+            if (matchingJobs.Count == 0)
             {
-                MessageBox.Show($"No handler found for this input.\nURL: {url}\nFile: {filePath}", 
+                MessageBox.Show($"No handler found for this input.\nURL: {url}\nFile: {filePath}",
                     "Dropzone", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ShowIdleView();
                 return;
             }
+
+            var jobConfig = ResolveJobSelection(matchingJobs);
+            if (jobConfig == null)
+            {
+                ShowIdleView();
+                return;
+            }
+
+            ShowProcessingView();
 
             // Download file if URL
             string inputPath = filePath ?? string.Empty;
@@ -141,10 +147,26 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error processing input: {ex.Message}", "Dropzone Error", 
+            MessageBox.Show($"Error processing input: {ex.Message}", "Dropzone Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             ShowIdleView();
         }
+    }
+
+    /// <summary>
+    /// Picks the single matching job, or asks the user when several jobs match.
+    /// Returns null if the user cancels.
+    /// </summary>
+    private JobConfig? ResolveJobSelection(IReadOnlyList<JobConfig> matchingJobs)
+    {
+        if (matchingJobs.Count == 1)
+        {
+            return matchingJobs[0];
+        }
+
+        using var selectionForm = new JobSelectionForm(matchingJobs);
+        var result = selectionForm.ShowDialog(this);
+        return result == DialogResult.OK ? selectionForm.SelectedJob : null;
     }
 
     private void ShowIdleView()

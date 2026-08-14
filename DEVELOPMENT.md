@@ -99,12 +99,39 @@ The first handler implementation is still named `AteaInvoiceHandler`. Its proces
 ## How to add a new job (config only)
 
 1. Add an entry under `jobs` in `Dropzone/Config/dropzone.config.json`.
-2. Set matching rules (`urlRegex`, `domainName`, and/or `fileExtension`).
+2. Set matching rules (`urlRegex`, `domainName`, `fileNameRegex`, and/or `fileExtension`).
 3. Set `handlerType` and `viewType` to existing registered types.
-4. Fill `handlerConfig` (script path, exe, etc.).
+4. Fill `handlerConfig` (script path, exe, working directory, etc.).
 5. Run and drop a matching URL or file.
 
 No C# change is required if handler and view already exist and are registered.
+
+`fileNameRegex` is matched against the **file name only** (not the full path), for both local file drops and the file segment of a URL. Use it for system-specific attachment names (e.g. Medius `einvoicecapture-embedded-attachment`) without tying jobs to a Downloads folder.
+
+### Python / uv projects
+
+For Python jobs managed with [uv](https://docs.astral.sh/uv/), point config at the project’s synced virtualenv interpreter and set the project root as working directory:
+
+```json
+"handlerConfig": {
+  "pythonExe": "C:\\path\\to\\Project\\.venv\\Scripts\\python.exe",
+  "pythonScript": "C:\\path\\to\\Project\\src\\main.py",
+  "workingDirectory": "C:\\path\\to\\Project"
+}
+```
+
+- Create/update the env with `uv sync` in the Python project (outside Dropzone).
+- `workingDirectory` ensures relative paths inside the script (`data/`, `logs/`, `output/`, etc.) resolve correctly.
+- Dropzone invokes: `pythonExe "pythonScript" "inputFile"` with that working directory.
+- Stdout/stderr are read as **UTF-8** (`PYTHONIOENCODING` / `PYTHONUTF8` are also set for the child process). Scripts should emit UTF-8 JSON (`ensure_ascii=False` in Python is fine).
+
+**Script contract (implemented in the Python project, not in Dropzone):** accept the input file path as a CLI argument and write a single JSON object to stdout (`success`, `comment`, `rows` with `konProj` / `rg` / `aktivitet` / `projKa`). Log to stderr or files so stdout stays valid JSON.
+
+### Multiple matching jobs
+
+If more than one job matches the same URL or file, Dropzone shows a selection dialog and the user picks which job to run. A single match runs immediately. Zero matches shows the existing “no handler” message.
+
+This is the first step toward content-based routing: matching can stay broad (e.g. Medius attachment URLs), while the user disambiguates until automatic classification exists.
 
 ## How to add a new handler
 

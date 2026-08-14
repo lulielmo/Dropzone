@@ -45,17 +45,16 @@ public class ConfigLoader
 
     public JobConfig? FindMatchingJob(string? url, string? filePath)
     {
-        var config = Load();
-        
-        foreach (var job in config.Jobs)
-        {
-            if (job.Matches(url, filePath))
-            {
-                return job;
-            }
-        }
+        return FindMatchingJobs(url, filePath).FirstOrDefault();
+    }
 
-        return null;
+    /// <summary>
+    /// Returns all jobs that match the given URL or file path, in config order.
+    /// </summary>
+    public IReadOnlyList<JobConfig> FindMatchingJobs(string? url, string? filePath)
+    {
+        var config = Load();
+        return config.Jobs.Where(job => job.Matches(url, filePath)).ToList();
     }
 }
 

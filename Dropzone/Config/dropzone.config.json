@@ -1,16 +1,30 @@
 {
   "jobs": [
     {
-      "name": "Atea Invoice License",
-      "urlRegex": ".*atea.*licens.*|.*invoice.*",
-      "domainName": "atea.se",
+      "name": "Atea Cloud Portal (ACP)",
+      "urlRegex": ".*mediusflow\\.com.*",
+      "domainName": "mediusflow.com",
+      "fileNameRegex": "einvoicecapture-embedded-attachment",
       "handlerType": "AteaInvoiceHandler",
       "viewType": "GridAndCommentView",
       "handlerConfig": {
-        "pythonScript": "C:\\path\\to\\InvoiceHelper.py",
-        "pythonExe": "python"
+        "pythonExe": "C:\\Users\\jomu\\VS Code\\InvoiceHelper\\.venv\\Scripts\\python.exe",
+        "pythonScript": "C:\\Users\\jomu\\VS Code\\InvoiceHelper\\src\\main.py",
+        "workingDirectory": "C:\\Users\\jomu\\VS Code\\InvoiceHelper"
+      }
+    },
+    {
+      "name": "Atea Azure Consumption",
+      "urlRegex": ".*mediusflow\\.com.*",
+      "domainName": "mediusflow.com",
+      "fileNameRegex": "einvoicecapture-embedded-attachment",
+      "handlerType": "AteaInvoiceHandler",
+      "viewType": "GridAndCommentView",
+      "handlerConfig": {
+        "pythonScript": "C:\\path\\to\\AzureConsumptionHelper.py",
+        "pythonExe": "python",
+        "workingDirectory": "C:\\path\\to\\AzureConsumptionHelper"
       }
     }
   ]
 }
-

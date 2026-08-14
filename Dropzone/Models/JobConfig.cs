@@ -9,6 +9,7 @@ public class JobConfig
 {
     public string Name { get; set; } = string.Empty;
     public string? UrlRegex { get; set; }
+    public string? FileNameRegex { get; set; }
     public string? FileExtension { get; set; }
     public string? DomainName { get; set; }
     public string HandlerType { get; set; } = string.Empty;
@@ -26,6 +27,9 @@ public class JobConfig
                 return true;
 
             if (!string.IsNullOrEmpty(DomainName) && url.Contains(DomainName, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (MatchesFileName(GetFileNameFromUrl(url)))
                 return true;
 
             // Check file extension in URL as well
@@ -51,6 +55,9 @@ public class JobConfig
 
         if (!string.IsNullOrEmpty(filePath))
         {
+            if (MatchesFileName(Path.GetFileName(filePath)))
+                return true;
+
             if (!string.IsNullOrEmpty(FileExtension))
             {
                 var ext = Path.GetExtension(filePath).TrimStart('.');
@@ -60,6 +67,29 @@ public class JobConfig
         }
 
         return false;
+    }
+
+    private bool MatchesFileName(string? fileName)
+    {
+        if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(FileNameRegex))
+            return false;
+
+        return Regex.IsMatch(fileName, FileNameRegex, RegexOptions.IgnoreCase);
+    }
+
+    private static string? GetFileNameFromUrl(string url)
+    {
+        try
+        {
+            var uri = new Uri(url);
+            var name = Path.GetFileName(uri.AbsolutePath);
+            return string.IsNullOrEmpty(name) ? null : name;
+        }
+        catch
+        {
+            var name = Path.GetFileName(url);
+            return string.IsNullOrEmpty(name) ? null : name;
+        }
     }
 }
 

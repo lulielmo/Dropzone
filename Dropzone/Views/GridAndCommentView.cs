@@ -30,8 +30,8 @@ public partial class GridAndCommentView : UserControl
             );
         }
 
-        // Set comment text
-        commentTextBox.Text = result.Comment;
+        // WinForms TextBox needs CRLF; JSON/Python comments typically use LF only.
+        commentTextBox.Text = NormalizeNewLines(result.Comment);
 
         // Select first row if available
         if (dataGridView.Rows.Count > 0)
@@ -39,6 +39,14 @@ public partial class GridAndCommentView : UserControl
             dataGridView.Rows[0].Selected = true;
             dataGridView.CurrentCell = dataGridView.Rows[0].Cells[0];
         }
+    }
+
+    private static string NormalizeNewLines(string? text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+
+        return text.ReplaceLineEndings("\r\n");
     }
 
     private void dataGridView_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)

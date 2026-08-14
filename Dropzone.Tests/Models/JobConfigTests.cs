@@ -17,6 +17,7 @@ public class JobConfigTests
         // Assert
         config.Name.Should().BeEmpty();
         config.UrlRegex.Should().BeNull();
+        config.FileNameRegex.Should().BeNull();
         config.FileExtension.Should().BeNull();
         config.DomainName.Should().BeNull();
         config.HandlerType.Should().BeEmpty();
@@ -73,6 +74,27 @@ public class JobConfigTests
         var config = new JobConfig
         {
             UrlRegex = @".*atea.*licens.*|.*invoice.*"
+        };
+
+        // Act
+        var result = config.Matches(url, filePath);
+
+        // Assert
+        result.Should().Be(expectedMatch);
+    }
+
+    [Theory]
+    [InlineData(null, @"C:\Users\jomu\Downloads\einvoicecapture-embedded-attachment-4a1f11ec-0493-49f8-a1c1-0a427b5c1bc0 (2).pdf", true)]
+    [InlineData(null, @"C:\Users\jomu\Downloads\EINVOICECAPTURE-EMBEDDED-ATTACHMENT-abc.pdf", true)]
+    [InlineData(null, @"C:\Users\jomu\Downloads\other-invoice.pdf", false)]
+    [InlineData("https://example.com/files/einvoicecapture-embedded-attachment-xyz.pdf", null, true)]
+    [InlineData("https://example.com/files/other.pdf", null, false)]
+    public void Matches_ShouldMatchByFileNameRegex(string? url, string? filePath, bool expectedMatch)
+    {
+        // Arrange
+        var config = new JobConfig
+        {
+            FileNameRegex = "einvoicecapture-embedded-attachment"
         };
 
         // Act

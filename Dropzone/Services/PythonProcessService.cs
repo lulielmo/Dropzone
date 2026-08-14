@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Dropzone.Models;
 
@@ -12,6 +13,7 @@ public class PythonProcessService
         string pythonExe,
         string scriptPath,
         string inputFilePath,
+        string? workingDirectory = null,
         CancellationToken cancellationToken = default)
     {
         var processStartInfo = new System.Diagnostics.ProcessStartInfo
@@ -21,8 +23,20 @@ public class PythonProcessService
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            CreateNoWindow = true
+            CreateNoWindow = true,
+            // Python writes UTF-8 JSON; without this, Windows default ANSI decoding causes mojibake (e.g. "LÃ¶fgren").
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8
         };
+
+        // Prefer UTF-8 from the Python runtime on Windows as well.
+        processStartInfo.Environment["PYTHONIOENCODING"] = "utf-8";
+        processStartInfo.Environment["PYTHONUTF8"] = "1";
+
+        if (!string.IsNullOrWhiteSpace(workingDirectory))
+        {
+            processStartInfo.WorkingDirectory = workingDirectory;
+        }
 
         try
         {

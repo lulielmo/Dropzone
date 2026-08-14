@@ -16,11 +16,15 @@
 
 ## Product / UX
 
+- [x] Manual job selection when multiple jobs match the same URL/file
 - [ ] Clarify idle / processing / result states in the main window
 - [ ] Improve “no matching job” feedback for dropped URLs/files
+- [ ] Optional content-based job suggestion (keywords / PDF text) before or instead of manual choice
+- [ ] Explicit “done” action: cleanup temp file and return to idle
 
 ## Code quality
 
+- [x] Support `workingDirectory` + uv `.venv` pythonExe in handler config
 - [ ] Prefer dependency injection for services used by handlers (`PythonProcessService`, etc.) to improve testability
 - [ ] Review leftover `Form1` scaffolding if unused
 - [ ] Temp-file cleanup strategy (timing and failure paths)

@@ -112,6 +112,42 @@ public class AteaInvoiceHandlerTests
     }
 
     [Fact]
+    public async Task ProcessAsync_WithNonExistentWorkingDirectory_ShouldReturnErrorResult()
+    {
+        // Arrange
+        var handler = new AteaInvoiceHandler();
+        var inputPath = Path.Combine(Path.GetTempPath(), $"test_input_{Guid.NewGuid()}.pdf");
+        var tempScript = Path.Combine(Path.GetTempPath(), $"test_script_{Guid.NewGuid()}.py");
+
+        File.WriteAllText(inputPath, "test content");
+        File.WriteAllText(tempScript, "print('{}')");
+
+        try
+        {
+            var config = new Dictionary<string, string>
+            {
+                { "pythonScript", tempScript },
+                { "pythonExe", "python" },
+                { "workingDirectory", "C:\\nonexistent\\working\\directory" }
+            };
+
+            // Act
+            var result = await handler.ProcessAsync(inputPath, config);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.ErrorMessage.Should().Contain("Working directory not found");
+        }
+        finally
+        {
+            if (File.Exists(inputPath))
+                File.Delete(inputPath);
+            if (File.Exists(tempScript))
+                File.Delete(tempScript);
+        }
+    }
+
+    [Fact]
     public async Task ProcessAsync_WithValidConfig_ShouldSetTypeAndTitle()
     {
         // Arrange
