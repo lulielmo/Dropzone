@@ -165,6 +165,17 @@ Row objects follow Medius Excel column order (A–J):
 
 Omitted optional fields are treated as empty.
 
+### Copying grid data into Medius
+
+`GridAndCommentView` supports Excel-like copy:
+
+- Cell multi-select (`CellSelect`)
+- After results load, all data cells are selected
+- **Ctrl+A** — select all cells
+- **Ctrl+C** — copy selection as tab-separated values (TSV) with CRLF, **without** column headers; empty columns are preserved as empty fields between tabs
+
+Paste into Medius (or Excel) should behave like copying the corresponding range from a spreadsheet.
+
 ### Multiple matching jobs
 
 If more than one job matches the same URL or file, Dropzone shows a selection dialog and the user picks which job to run. A single match runs immediately. Zero matches shows the existing “no handler” message.

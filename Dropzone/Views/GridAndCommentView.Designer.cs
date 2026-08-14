@@ -41,11 +41,12 @@ partial class GridAndCommentView
         dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dataGridView.Dock = DockStyle.Fill;
-        dataGridView.MultiSelect = false;
+        dataGridView.MultiSelect = true;
         dataGridView.Name = "dataGridView";
         dataGridView.ReadOnly = true;
-        dataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dataGridView.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithAutoHeaderText;
+        dataGridView.SelectionMode = DataGridViewSelectionMode.CellSelect;
+        // Headers are not copied — Medius paste expects data cells only (Excel-like TSV).
+        dataGridView.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
         dataGridView.Columns.AddRange(new DataGridViewColumn[]
         {
             new DataGridViewTextBoxColumn { Name = "KonProj", HeaderText = "Kon/Proj", MinimumWidth = 70 },

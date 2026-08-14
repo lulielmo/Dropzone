@@ -1,4 +1,5 @@
 using Dropzone.Models;
+using Dropzone.Services;
 
 namespace Dropzone.Views;
 
@@ -10,6 +11,7 @@ public partial class GridAndCommentView : UserControl
     public GridAndCommentView()
     {
         InitializeComponent();
+        dataGridView.KeyDown += dataGridView_KeyDown;
     }
 
     public void SetData(JobResult result)
@@ -38,11 +40,11 @@ public partial class GridAndCommentView : UserControl
         // WinForms TextBox needs CRLF; JSON/Python comments typically use LF only.
         commentTextBox.Text = NormalizeNewLines(result.Comment);
 
-        // Select first row if available
         if (dataGridView.Rows.Count > 0)
         {
-            dataGridView.Rows[0].Selected = true;
-            dataGridView.CurrentCell = dataGridView.Rows[0].Cells[0];
+            // Ready for Ctrl+C into Medius: all data cells selected, no headers.
+            dataGridView.Focus();
+            dataGridView.SelectAll();
         }
     }
 
@@ -52,6 +54,52 @@ public partial class GridAndCommentView : UserControl
             return string.Empty;
 
         return text.ReplaceLineEndings("\r\n");
+    }
+
+    private void dataGridView_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Control && e.KeyCode == Keys.A)
+        {
+            dataGridView.SelectAll();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+            return;
+        }
+
+        if (e.Control && e.KeyCode == Keys.C)
+        {
+            CopySelectionAsExcelTsv();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+    }
+
+    /// <summary>
+    /// Copies the bounding rectangle of the current selection as Excel-like TSV (no headers).
+    /// </summary>
+    private void CopySelectionAsExcelTsv()
+    {
+        if (dataGridView.GetCellCount(DataGridViewElementStates.Selected) == 0)
+            return;
+
+        var selectedCells = dataGridView.SelectedCells.Cast<DataGridViewCell>().ToList();
+        var minRow = selectedCells.Min(c => c.RowIndex);
+        var maxRow = selectedCells.Max(c => c.RowIndex);
+        var minCol = selectedCells.Min(c => c.ColumnIndex);
+        var maxCol = selectedCells.Max(c => c.ColumnIndex);
+
+        var rows = new List<IReadOnlyList<string?>>();
+        for (var r = minRow; r <= maxRow; r++)
+        {
+            var cells = new List<string?>();
+            for (var c = minCol; c <= maxCol; c++)
+            {
+                cells.Add(dataGridView[c, r].Value?.ToString() ?? string.Empty);
+            }
+            rows.Add(cells);
+        }
+
+        Clipboard.SetText(TabSeparatedClipboard.Format(rows));
     }
 
     private void dataGridView_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)

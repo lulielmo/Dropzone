@@ -17,7 +17,7 @@
 ## Product / UX
 
 - [x] Expand grid/JSON row contract to full Medius columns (incl. empty spacers, Netto, Godkänt av)
-- [ ] Excel-compatible multi-cell copy from the result grid
+- [x] Excel-compatible multi-cell copy from the result grid (Ctrl+A / Ctrl+C, TSV without headers)
 - [ ] Clarify idle / processing / result states in the main window
 - [ ] Improve “no matching job” feedback for dropped URLs/files
 - [ ] Optional content-based job suggestion (keywords / PDF text) before or instead of manual choice
