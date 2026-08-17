@@ -22,14 +22,23 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [ ] Implement **Done**: clear latest result, cleanup temp file(s), restore idle GUI (“Släpp något här”)
 - [ ] Align link state: Done enabled only when a result is shown; disable again after reset
 
-### 2. Window behavior (desktop utility)
+### 2. Script diagnostics in the result UI
+
+When scripts run inside Dropzone, console/stderr output (including red validation failures) is no longer visible. Interactive runs should keep printing as today.
+
+- [ ] Extend JSON contract with structured diagnostics, e.g. `warnings` / `messages` (severity/level + text), separate from `comment`
+- [ ] Parse into `JobResult` and show in `GridAndCommentView` (e.g. prominent panel; errors/warnings visually distinct)
+- [ ] Document contract in `DEVELOPMENT.md`; InvoiceHelper (and later scripts) emit diagnostics only in Dropzone/CLI-JSON mode
+- [ ] Optional later: collapsible raw log (stderr) for deep troubleshooting without changing the happy-path UI
+
+### 3. Window behavior (desktop utility)
 
 - [ ] **Always on top** when the window is visible (not minimized / not in tray)
 - [ ] Minimize to **system tray / hidden icons**; restore on double-click (NotifyIcon)
 - [ ] Optional: global **hotkey** to show/hide from tray
 - [ ] Optional: start with Windows / single-instance guard
 
-### 3. Code quality / hygiene (good “waiting for invoice” work)
+### 4. Code quality / hygiene (good “waiting for invoice” work)
 
 - [ ] Enable Visual Studio / .NET **code analysis** on rebuild (e.g. analyzers + `.editorconfig`, treat warnings as agreed)
 - [ ] Rename `AteaInvoiceHandler` → `PythonScriptHandler` (or equivalent strategy name)
@@ -41,7 +50,7 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [ ] Confirm view registration pattern matches handler registration (document any gaps)
 - [ ] Temp-file cleanup strategy (timing and failure paths) — partly overlaps Done
 
-### 4. Idle UX polish
+### 5. Idle UX polish
 
 - [ ] **Mouse dodge** in idle only: when the pointer approaches, move the window aside so it does not obscure content underneath; **do not** dodge during an active drag-and-drop onto Dropzone; **never** dodge while a result is displayed
 - [ ] Clarify idle / processing / result states in the main window
@@ -50,13 +59,13 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [ ] Reject or warn early when the input file is not a usable PDF (before calling the script)
 - [ ] Optional: visible **Copy comment** button (textarea copy already works)
 
-### 5. Configuration UI
+### 6. Configuration UI
 
 - [ ] Implement **Configuration** menu: start simple (open/`reveal` `dropzone.config.json`, reload config) before a full editor
 - [ ] Later: graphical UI on top of `dropzone.config.json` (view/edit jobs, paths, matchers)
 - [ ] Validate config on load and surface errors in the UI
 
-### 6. Smarter routing / more jobs
+### 7. Smarter routing / more jobs
 
 - [ ] Optional content-based job suggestion (keywords / PDF text) before or instead of manual choice
 - [ ] Second real job via config only (e.g. Azure Consumption) when its script exists — validates config-first
@@ -67,9 +76,10 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 
 - [ ] Increase coverage around config matching edge cases
 - [ ] Consider a separate integration test project for real Python script runs
-- [ ] Verify Medius paste end-to-end when the next ACP invoice arrives (Excel paste already OK)
+- [x] Verify Medius paste end-to-end when the next ACP invoice arrives (Excel paste already OK)
 
 ## Notes
 
 - Prefer file-drop from Edge downloads while Medius URL auth is unresolved.
 - Script JSON contract and column layout: see `DEVELOPMENT.md`.
+- Structured script warnings for Dropzone mode are planned (see §2); interactive console output stays as-is.
