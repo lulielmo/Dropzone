@@ -17,6 +17,7 @@ public class JobResultTests
         // Assert
         result.Rows.Should().NotBeNull().And.BeEmpty();
         result.Comment.Should().BeEmpty();
+        result.Messages.Should().NotBeNull().And.BeEmpty();
         result.OutputFile.Should().BeNull();
         result.Type.Should().BeNull();
         result.Title.Should().BeNull();

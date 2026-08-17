@@ -4,7 +4,7 @@ using Dropzone.Services;
 namespace Dropzone.Views;
 
 /// <summary>
-/// View displaying a data grid above and a comment text area below
+/// View displaying script diagnostics (when present), a data grid, and a Medius comment text area.
 /// </summary>
 public partial class GridAndCommentView : UserControl
 {
@@ -16,11 +16,9 @@ public partial class GridAndCommentView : UserControl
 
     public void SetData(JobResult result)
     {
-        // Clear existing data
         dataGridView.Rows.Clear();
         commentTextBox.Text = string.Empty;
 
-        // Populate grid with rows (Medius Excel column order A–J)
         foreach (var row in result.Rows)
         {
             dataGridView.Rows.Add(
@@ -40,13 +38,99 @@ public partial class GridAndCommentView : UserControl
         // WinForms TextBox needs CRLF; JSON/Python comments typically use LF only.
         commentTextBox.Text = NormalizeNewLines(result.Comment);
 
+        ShowDiagnostics(GetDisplayDiagnostics(result));
+
         if (dataGridView.Rows.Count > 0)
         {
-            // Ready for Ctrl+C into Medius: all data cells selected, no headers.
             dataGridView.Focus();
             dataGridView.SelectAll();
         }
     }
+
+    internal bool DiagnosticsVisible => diagnosticsPanel.Visible;
+
+    internal IReadOnlyList<DiagnosticMessage> DisplayedDiagnostics =>
+        diagnosticsListBox.Items.Cast<DiagnosticMessage>().ToList();
+
+    internal static List<DiagnosticMessage> GetDisplayDiagnostics(JobResult result)
+    {
+        var diagnostics = result.Messages?
+            .Where(message => !string.IsNullOrWhiteSpace(message.Text))
+            .ToList() ?? [];
+
+        if (!result.Success
+            && !string.IsNullOrWhiteSpace(result.ErrorMessage)
+            && diagnostics.All(message => message.Text != result.ErrorMessage))
+        {
+            diagnostics.Insert(0, new DiagnosticMessage
+            {
+                Level = DiagnosticLevel.Error,
+                Text = result.ErrorMessage
+            });
+        }
+
+        return diagnostics;
+    }
+
+    private void ShowDiagnostics(IReadOnlyList<DiagnosticMessage> messages)
+    {
+        diagnosticsListBox.Items.Clear();
+
+        if (messages.Count == 0)
+        {
+            diagnosticsPanel.Visible = false;
+            diagnosticsPanel.Height = 0;
+            return;
+        }
+
+        foreach (var message in messages)
+        {
+            diagnosticsListBox.Items.Add(message);
+        }
+
+        var visibleRows = Math.Clamp(messages.Count, 1, 5);
+        var listHeight = visibleRows * diagnosticsListBox.ItemHeight + 4;
+        diagnosticsListBox.Height = listHeight;
+        diagnosticsPanel.Height = listHeight + diagnosticsPanel.Padding.Vertical;
+        diagnosticsPanel.Visible = true;
+        diagnosticsPanel.BackColor = BackColorFor(messages.Max(message => message.Level));
+    }
+
+    private void diagnosticsListBox_DrawItem(object? sender, DrawItemEventArgs e)
+    {
+        if (e.Index < 0 || e.Index >= diagnosticsListBox.Items.Count)
+            return;
+
+        var message = (DiagnosticMessage)diagnosticsListBox.Items[e.Index];
+        var backColor = BackColorFor(message.Level);
+        var foreColor = ForeColorFor(message.Level);
+
+        using var background = new SolidBrush(backColor);
+        e.Graphics.FillRectangle(background, e.Bounds);
+
+        var textBounds = Rectangle.Inflate(e.Bounds, -8, 0);
+        TextRenderer.DrawText(
+            e.Graphics,
+            message.ToString(),
+            diagnosticsListBox.Font,
+            textBounds,
+            foreColor,
+            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+    }
+
+    private static Color BackColorFor(DiagnosticLevel level) => level switch
+    {
+        DiagnosticLevel.Error => Color.FromArgb(255, 235, 238),
+        DiagnosticLevel.Info => Color.FromArgb(227, 242, 253),
+        _ => Color.FromArgb(255, 243, 224)
+    };
+
+    private static Color ForeColorFor(DiagnosticLevel level) => level switch
+    {
+        DiagnosticLevel.Error => Color.FromArgb(183, 28, 28),
+        DiagnosticLevel.Info => Color.FromArgb(13, 71, 161),
+        _ => Color.FromArgb(230, 81, 0)
+    };
 
     private static string NormalizeNewLines(string? text)
     {

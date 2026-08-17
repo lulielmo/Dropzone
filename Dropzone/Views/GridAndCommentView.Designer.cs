@@ -6,6 +6,8 @@ partial class GridAndCommentView
     private DataGridView dataGridView;
     private TextBox commentTextBox;
     private SplitContainer splitContainer;
+    private Panel diagnosticsPanel;
+    private ListBox diagnosticsListBox;
 
     protected override void Dispose(bool disposing)
     {
@@ -21,6 +23,8 @@ partial class GridAndCommentView
         splitContainer = new SplitContainer();
         dataGridView = new DataGridView();
         commentTextBox = new TextBox();
+        diagnosticsPanel = new Panel();
+        diagnosticsListBox = new ListBox();
         ((System.ComponentModel.ISupportInitialize)splitContainer).BeginInit();
         splitContainer.Panel1.SuspendLayout();
         splitContainer.Panel2.SuspendLayout();
@@ -82,10 +86,29 @@ partial class GridAndCommentView
         splitContainer.ResumeLayout(false);
 
         ((System.ComponentModel.ISupportInitialize)dataGridView).EndInit();
+
+        // Diagnostics panel (top). Hidden until a result contains messages.
+        diagnosticsPanel.Dock = DockStyle.Top;
+        diagnosticsPanel.Name = "diagnosticsPanel";
+        diagnosticsPanel.Padding = new Padding(6);
+        diagnosticsPanel.Visible = false;
+        diagnosticsPanel.Height = 40;
+
+        diagnosticsListBox.BorderStyle = BorderStyle.None;
+        diagnosticsListBox.Dock = DockStyle.Fill;
+        diagnosticsListBox.DrawMode = DrawMode.OwnerDrawFixed;
+        diagnosticsListBox.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+        diagnosticsListBox.IntegralHeight = false;
+        diagnosticsListBox.ItemHeight = 24;
+        diagnosticsListBox.Name = "diagnosticsListBox";
+        diagnosticsListBox.DrawItem += diagnosticsListBox_DrawItem;
+        diagnosticsPanel.Controls.Add(diagnosticsListBox);
+
         ResumeLayout(false);
 
-        // Add splitContainer to this UserControl
+        // Dock order: Fill first, then Top so the diagnostics bar sits above the split.
         Controls.Add(splitContainer);
+        Controls.Add(diagnosticsPanel);
 
         components = new System.ComponentModel.Container();
     }

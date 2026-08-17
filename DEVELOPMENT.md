@@ -133,6 +133,10 @@ Row objects follow Medius Excel column order (A–J):
 {
   "success": true,
   "comment": "Medius comment text with \\n line breaks",
+  "messages": [
+    { "level": "error", "text": "Totalsumman stämmer inte med fakturan." },
+    { "level": "warning", "text": "Rad 2 saknar aktivitet." }
+  ],
   "rows": [
     {
       "konProj": "5420",
@@ -164,6 +168,23 @@ Row objects follow Medius Excel column order (A–J):
 | `godkantAv` | Godkänt av |
 
 Omitted optional fields are treated as empty.
+
+### Script diagnostics
+
+`comment` is Medius paste text only. Validation and other script notes belong in `messages` so Dropzone can show them in a distinct panel above the grid.
+
+| JSON | Meaning |
+|------|---------|
+| `messages` | Array of diagnostics (preferred) |
+| `warnings` | Alias used only when `messages` is omitted |
+| `level` / `severity` | `error`, `warning` (or `warn`), `info` (or `note`). Default: `warning` |
+| `text` / `message` | Human-readable text |
+
+A `warnings` item may also be a plain string; it is treated as `{ "level": "warning", "text": "..." }`. Empty items are ignored.
+
+Emit `messages` only in Dropzone / CLI JSON mode (stdout). Interactive console runs should keep printing to stderr or the terminal as today. Do not put diagnostics into `comment`.
+
+`GridAndCommentView` hides the panel when there are no messages. Errors are red, warnings amber, info blue. Host failures (`JobResult.ErrorMessage` when `success` is false) appear in the same panel.
 
 ### Copying grid data into Medius
 

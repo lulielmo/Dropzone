@@ -74,7 +74,15 @@ public class PythonProcessService
                 Success = false,
                 ErrorMessage = ex.Message,
                 Rows = new List<RowModel>(),
-                Comment = $"Error: {ex.Message}"
+                Comment = $"Error: {ex.Message}",
+                Messages =
+                [
+                    new DiagnosticMessage
+                    {
+                        Level = DiagnosticLevel.Error,
+                        Text = ex.Message
+                    }
+                ]
             };
         }
     }
@@ -91,7 +99,8 @@ public class PythonProcessService
             {
                 Success = root.TryGetProperty("success", out var success) && success.GetBoolean(),
                 Comment = root.TryGetProperty("comment", out var comment) ? comment.GetString() ?? string.Empty : string.Empty,
-                Rows = new List<RowModel>()
+                Rows = new List<RowModel>(),
+                Messages = ParseMessages(root)
             };
 
             // Parse rows if present
@@ -113,9 +122,74 @@ public class PythonProcessService
                 Success = false,
                 ErrorMessage = $"Failed to parse JSON output: {ex.Message}",
                 Comment = jsonOutput,
-                Rows = new List<RowModel>()
+                Rows = new List<RowModel>(),
+                Messages =
+                [
+                    new DiagnosticMessage
+                    {
+                        Level = DiagnosticLevel.Error,
+                        Text = $"Failed to parse JSON output: {ex.Message}"
+                    }
+                ]
             };
         }
+    }
+
+    private static List<DiagnosticMessage> ParseMessages(JsonElement root)
+    {
+        var messages = new List<DiagnosticMessage>();
+        AppendMessages(root, "messages", messages);
+        if (messages.Count == 0)
+        {
+            AppendMessages(root, "warnings", messages);
+        }
+
+        return messages;
+    }
+
+    private static void AppendMessages(JsonElement root, string propertyName, List<DiagnosticMessage> target)
+    {
+        if (!root.TryGetProperty(propertyName, out var array) || array.ValueKind != JsonValueKind.Array)
+            return;
+
+        foreach (var item in array.EnumerateArray())
+        {
+            var parsed = ParseMessage(item);
+            if (parsed != null)
+            {
+                target.Add(parsed);
+            }
+        }
+    }
+
+    private static DiagnosticMessage? ParseMessage(JsonElement item)
+    {
+        if (item.ValueKind == JsonValueKind.String)
+        {
+            var text = item.GetString();
+            if (string.IsNullOrWhiteSpace(text))
+                return null;
+
+            return new DiagnosticMessage
+            {
+                Level = DiagnosticLevel.Warning,
+                Text = text.Trim()
+            };
+        }
+
+        if (item.ValueKind != JsonValueKind.Object)
+            return null;
+
+        var textValue = GetString(item, "text", "message");
+        if (string.IsNullOrWhiteSpace(textValue))
+            return null;
+
+        var levelValue = GetString(item, "level", "severity");
+        return new DiagnosticMessage
+        {
+            Level = DiagnosticMessage.ParseLevel(levelValue),
+            Text = textValue.Trim()
+        };
     }
 
     private static RowModel ParseRow(JsonElement rowElement)

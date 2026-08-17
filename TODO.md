@@ -15,26 +15,18 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [x] Expand grid/JSON row contract to full Medius columns (incl. empty spacers, Netto, Godkänt av)
 - [x] Excel-compatible multi-cell copy from the result grid (Ctrl+A / Ctrl+C, TSV without headers)
 - [x] **Done** action: clear result, cleanup owned temp files, restore idle; enabled only while a result is shown
+- [x] Script diagnostics in the result UI (`messages` JSON → `JobResult` → prominent panel in `GridAndCommentView`)
 
 ## Next up (priority order)
 
-### 1. Script diagnostics in the result UI
-
-When scripts run inside Dropzone, console/stderr output (including red validation failures) is no longer visible. Interactive runs should keep printing as today.
-
-- [ ] Extend JSON contract with structured diagnostics, e.g. `warnings` / `messages` (severity/level + text), separate from `comment`
-- [ ] Parse into `JobResult` and show in `GridAndCommentView` (e.g. prominent panel; errors/warnings visually distinct)
-- [ ] Document contract in `DEVELOPMENT.md`; InvoiceHelper (and later scripts) emit diagnostics only in Dropzone/CLI-JSON mode
-- [ ] Optional later: collapsible raw log (stderr) for deep troubleshooting without changing the happy-path UI
-
-### 2. Window behavior (desktop utility)
+### 1. Window behavior (desktop utility)
 
 - [ ] **Always on top** when the window is visible (not minimized / not in tray)
 - [ ] Minimize to **system tray / hidden icons**; restore on double-click (NotifyIcon)
 - [ ] Optional: global **hotkey** to show/hide from tray
 - [ ] Optional: start with Windows / single-instance guard
 
-### 3. Code quality / hygiene (good “waiting for invoice” work)
+### 2. Code quality / hygiene (good “waiting for invoice” work)
 
 - [ ] Enable Visual Studio / .NET **code analysis** on rebuild (e.g. analyzers + `.editorconfig`, treat warnings as agreed)
 - [ ] Rename `AteaInvoiceHandler` → `PythonScriptHandler` (or equivalent strategy name)
@@ -45,7 +37,7 @@ When scripts run inside Dropzone, console/stderr output (including red validatio
 - [ ] Prefer dependency injection for services used by handlers (`PythonProcessService`, etc.) to improve testability
 - [ ] Confirm view registration pattern matches handler registration (document any gaps)
 
-### 4. Idle UX polish
+### 3. Idle UX polish
 
 - [ ] **Mouse dodge** in idle only: when the pointer approaches, move the window aside so it does not obscure content underneath; **do not** dodge during an active drag-and-drop onto Dropzone; **never** dodge while a result is displayed
 - [ ] Clarify idle / processing / result states in the main window
@@ -54,13 +46,13 @@ When scripts run inside Dropzone, console/stderr output (including red validatio
 - [ ] Reject or warn early when the input file is not a usable PDF (before calling the script)
 - [ ] Optional: visible **Copy comment** button (textarea copy already works)
 
-### 5. Configuration UI
+### 4. Configuration UI
 
 - [ ] Implement **Configuration** menu: start simple (open/`reveal` `dropzone.config.json`, reload config) before a full editor
 - [ ] Later: graphical UI on top of `dropzone.config.json` (view/edit jobs, paths, matchers)
 - [ ] Validate config on load and surface errors in the UI
 
-### 6. Smarter routing / more jobs
+### 5. Smarter routing / more jobs
 
 - [ ] Optional content-based job suggestion (keywords / PDF text) before or instead of manual choice
 - [ ] Second real job via config only (e.g. Azure Consumption) when its script exists — validates config-first
@@ -76,5 +68,6 @@ When scripts run inside Dropzone, console/stderr output (including red validatio
 ## Notes
 
 - Prefer file-drop from Edge downloads while Medius URL auth is unresolved.
-- Script JSON contract and column layout: see `DEVELOPMENT.md`.
-- Structured script warnings for Dropzone mode are planned (see §1); interactive console output stays as-is.
+- Script JSON contract (rows, comment, `messages`) and column layout: see `DEVELOPMENT.md`.
+- InvoiceHelper (and later scripts) should emit `messages` only in Dropzone/CLI-JSON mode; interactive console output stays as-is.
+- Optional later: collapsible raw stderr log for deep troubleshooting.

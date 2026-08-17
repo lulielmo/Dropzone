@@ -163,6 +163,89 @@ public class PythonProcessServiceTests
         result.Rows[1].KonProj.Should().Be("P.20257601");
         result.Rows[1].ProjKat.Should().Be("5420");
         result.Rows[1].Netto.Should().Be("7097,97");
+        result.Messages.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseJsonOutput_WithMessages_ShouldMapLevelAndText()
+    {
+        var json = """
+            {
+              "success": true,
+              "comment": "Medius comment",
+              "messages": [
+                { "level": "error", "text": "Totalsumman stämmer inte" },
+                { "severity": "warning", "message": "Rad 2 saknar aktivitet" },
+                { "level": "info", "text": "Kontrollera EAN" }
+              ],
+              "rows": []
+            }
+            """;
+
+        var result = _service.ParseJsonOutput(json);
+
+        result.Success.Should().BeTrue();
+        result.Comment.Should().Be("Medius comment");
+        result.Messages.Should().HaveCount(3);
+        result.Messages[0].Level.Should().Be(DiagnosticLevel.Error);
+        result.Messages[0].Text.Should().Be("Totalsumman stämmer inte");
+        result.Messages[1].Level.Should().Be(DiagnosticLevel.Warning);
+        result.Messages[1].Text.Should().Be("Rad 2 saknar aktivitet");
+        result.Messages[2].Level.Should().Be(DiagnosticLevel.Info);
+        result.Messages[2].Text.Should().Be("Kontrollera EAN");
+    }
+
+    [Fact]
+    public void ParseJsonOutput_WithWarningsAliasAndBareStrings_ShouldMapAsWarnings()
+    {
+        var json = """
+            {
+              "success": true,
+              "comment": "",
+              "warnings": [
+                "Enkel varning",
+                { "text": "Objekt utan level" },
+                ""
+              ],
+              "rows": []
+            }
+            """;
+
+        var result = _service.ParseJsonOutput(json);
+
+        result.Messages.Should().HaveCount(2);
+        result.Messages[0].Level.Should().Be(DiagnosticLevel.Warning);
+        result.Messages[0].Text.Should().Be("Enkel varning");
+        result.Messages[1].Level.Should().Be(DiagnosticLevel.Warning);
+        result.Messages[1].Text.Should().Be("Objekt utan level");
+    }
+
+    [Fact]
+    public void ParseJsonOutput_WithBothMessagesAndWarnings_ShouldPreferMessages()
+    {
+        var json = """
+            {
+              "success": true,
+              "messages": [ { "level": "error", "text": "From messages" } ],
+              "warnings": [ { "level": "warning", "text": "From warnings" } ]
+            }
+            """;
+
+        var result = _service.ParseJsonOutput(json);
+
+        result.Messages.Should().ContainSingle()
+            .Which.Text.Should().Be("From messages");
+    }
+
+    [Fact]
+    public void ParseJsonOutput_WithInvalidJson_ShouldReturnErrorDiagnostic()
+    {
+        var result = _service.ParseJsonOutput("{ not json");
+
+        result.Success.Should().BeFalse();
+        result.Messages.Should().ContainSingle();
+        result.Messages[0].Level.Should().Be(DiagnosticLevel.Error);
+        result.Messages[0].Text.Should().Contain("Failed to parse JSON output");
     }
 
     [Fact]
