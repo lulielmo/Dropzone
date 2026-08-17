@@ -51,7 +51,8 @@ partial class MainForm
         doneLinkLabel.Name = "doneLinkLabel";
         doneLinkLabel.Size = new Size(36, 15);
         doneLinkLabel.TabIndex = 1;
-        doneLinkLabel.TabStop = true;
+        doneLinkLabel.TabStop = false;
+        doneLinkLabel.Enabled = false;
         doneLinkLabel.Text = "Done";
         doneLinkLabel.LinkClicked += doneLinkLabel_LinkClicked;
 

@@ -182,6 +182,16 @@ If more than one job matches the same URL or file, Dropzone shows a selection di
 
 This is the first step toward content-based routing: matching can stay broad (e.g. Medius attachment URLs), while the user disambiguates until automatic classification exists.
 
+## Done action
+
+The main window has three content states:
+
+- **Idle** — prompt “Släpp något här”. **Done** is disabled.
+- **Processing** — “Bearbetar...”. **Done** is disabled.
+- **Result** — the job’s view (e.g. `GridAndCommentView`). **Done** is enabled.
+
+**Done** is an action, not a tab. Clicking it disposes the result view, deletes Dropzone-owned temp files (URL downloads under `%LocalAppData%\Dropzone\temp`), restores idle, and disables itself. Files the user dropped from disk are not deleted. Starting a new drop, or closing the window, also cleans owned temps. Files older than 24 hours in the temp folder are removed on close.
+
 ## How to add a new handler
 
 1. Implement `IJobHandler` in `Dropzone/Handlers/`.

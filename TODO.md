@@ -14,15 +14,11 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [x] Support `workingDirectory` + uv `.venv` pythonExe in handler config
 - [x] Expand grid/JSON row contract to full Medius columns (incl. empty spacers, Netto, Godkänt av)
 - [x] Excel-compatible multi-cell copy from the result grid (Ctrl+A / Ctrl+C, TSV without headers)
+- [x] **Done** action: clear result, cleanup owned temp files, restore idle; enabled only while a result is shown
 
 ## Next up (priority order)
 
-### 1. Done action
-
-- [ ] Implement **Done**: clear latest result, cleanup temp file(s), restore idle GUI (“Släpp något här”)
-- [ ] Align link state: Done enabled only when a result is shown; disable again after reset
-
-### 2. Script diagnostics in the result UI
+### 1. Script diagnostics in the result UI
 
 When scripts run inside Dropzone, console/stderr output (including red validation failures) is no longer visible. Interactive runs should keep printing as today.
 
@@ -31,14 +27,14 @@ When scripts run inside Dropzone, console/stderr output (including red validatio
 - [ ] Document contract in `DEVELOPMENT.md`; InvoiceHelper (and later scripts) emit diagnostics only in Dropzone/CLI-JSON mode
 - [ ] Optional later: collapsible raw log (stderr) for deep troubleshooting without changing the happy-path UI
 
-### 3. Window behavior (desktop utility)
+### 2. Window behavior (desktop utility)
 
 - [ ] **Always on top** when the window is visible (not minimized / not in tray)
 - [ ] Minimize to **system tray / hidden icons**; restore on double-click (NotifyIcon)
 - [ ] Optional: global **hotkey** to show/hide from tray
 - [ ] Optional: start with Windows / single-instance guard
 
-### 4. Code quality / hygiene (good “waiting for invoice” work)
+### 3. Code quality / hygiene (good “waiting for invoice” work)
 
 - [ ] Enable Visual Studio / .NET **code analysis** on rebuild (e.g. analyzers + `.editorconfig`, treat warnings as agreed)
 - [ ] Rename `AteaInvoiceHandler` → `PythonScriptHandler` (or equivalent strategy name)
@@ -48,9 +44,8 @@ When scripts run inside Dropzone, console/stderr output (including red validatio
 - [ ] Remove leftover `Form1` scaffolding if unused
 - [ ] Prefer dependency injection for services used by handlers (`PythonProcessService`, etc.) to improve testability
 - [ ] Confirm view registration pattern matches handler registration (document any gaps)
-- [ ] Temp-file cleanup strategy (timing and failure paths) — partly overlaps Done
 
-### 5. Idle UX polish
+### 4. Idle UX polish
 
 - [ ] **Mouse dodge** in idle only: when the pointer approaches, move the window aside so it does not obscure content underneath; **do not** dodge during an active drag-and-drop onto Dropzone; **never** dodge while a result is displayed
 - [ ] Clarify idle / processing / result states in the main window
@@ -59,13 +54,13 @@ When scripts run inside Dropzone, console/stderr output (including red validatio
 - [ ] Reject or warn early when the input file is not a usable PDF (before calling the script)
 - [ ] Optional: visible **Copy comment** button (textarea copy already works)
 
-### 6. Configuration UI
+### 5. Configuration UI
 
 - [ ] Implement **Configuration** menu: start simple (open/`reveal` `dropzone.config.json`, reload config) before a full editor
 - [ ] Later: graphical UI on top of `dropzone.config.json` (view/edit jobs, paths, matchers)
 - [ ] Validate config on load and surface errors in the UI
 
-### 7. Smarter routing / more jobs
+### 6. Smarter routing / more jobs
 
 - [ ] Optional content-based job suggestion (keywords / PDF text) before or instead of manual choice
 - [ ] Second real job via config only (e.g. Azure Consumption) when its script exists — validates config-first
@@ -82,4 +77,4 @@ When scripts run inside Dropzone, console/stderr output (including red validatio
 
 - Prefer file-drop from Edge downloads while Medius URL auth is unresolved.
 - Script JSON contract and column layout: see `DEVELOPMENT.md`.
-- Structured script warnings for Dropzone mode are planned (see §2); interactive console output stays as-is.
+- Structured script warnings for Dropzone mode are planned (see §1); interactive console output stays as-is.

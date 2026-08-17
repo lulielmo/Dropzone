@@ -12,8 +12,8 @@ public partial class MainForm : Form
     private readonly DownloadService _downloadService;
     private readonly TempFileService _tempFileService;
     private readonly Dictionary<string, Type> _handlerTypes;
+    private readonly List<string> _ownedTempFiles = new();
     private UserControl? _currentView;
-    private string? _currentTempFile;
 
     public MainForm()
     {
@@ -106,19 +106,14 @@ public partial class MainForm : Form
 
             ShowProcessingView();
 
-            // Download file if URL
+            // Download file if URL. Dropped local files are used as-is and never deleted.
             string inputPath = filePath ?? string.Empty;
             if (!string.IsNullOrEmpty(url))
             {
                 var tempPath = _tempFileService.GetTempFilePath(Path.GetFileName(new Uri(url).AbsolutePath));
+                RegisterOwnedTempFile(tempPath);
                 await _downloadService.DownloadFileAsync(url, tempPath);
                 inputPath = tempPath;
-                _currentTempFile = tempPath;
-            }
-            else if (!string.IsNullOrEmpty(filePath))
-            {
-                // Copy to temp if needed (or use directly)
-                inputPath = filePath;
             }
 
             // Create handler instance
@@ -136,14 +131,7 @@ public partial class MainForm : Form
             // Process with handler
             var result = await handler.ProcessAsync(inputPath, jobConfig.HandlerConfig);
 
-            // Show result view
             ShowResultView(jobConfig.ViewType, result);
-
-            // Cleanup temp file after a delay or on close
-            if (!string.IsNullOrEmpty(_currentTempFile) && File.Exists(_currentTempFile))
-            {
-                // Cleanup will happen on next process or form close
-            }
         }
         catch (Exception ex)
         {
@@ -169,12 +157,11 @@ public partial class MainForm : Form
         return result == DialogResult.OK ? selectionForm.SelectedJob : null;
     }
 
-    private void ShowIdleView()
+    internal void ShowIdleView()
     {
-        contentPanel.Controls.Clear();
-        _currentView = null;
-        
-        // Create idle view with parachute icon
+        CleanupOwnedTempFiles();
+        ClearContent();
+
         var idleLabel = new Label
         {
             Text = "Dropzone\n\nSläpp något här",
@@ -183,17 +170,17 @@ public partial class MainForm : Form
             Font = new Font("Segoe UI", 14F, FontStyle.Regular),
             ForeColor = Color.Gray
         };
-        
+
         contentPanel.Controls.Add(idleLabel);
-        
+
         configurationLinkLabel.Enabled = true;
-        doneLinkLabel.Enabled = false;
+        SetDoneEnabled(false);
     }
 
-    private void ShowProcessingView()
+    internal void ShowProcessingView()
     {
-        contentPanel.Controls.Clear();
-        _currentView = null;
+        CleanupOwnedTempFiles();
+        ClearContent();
 
         var processingLabel = new Label
         {
@@ -205,11 +192,13 @@ public partial class MainForm : Form
         };
 
         contentPanel.Controls.Add(processingLabel);
+
+        SetDoneEnabled(false);
     }
 
-    private void ShowResultView(string viewType, JobResult result)
+    internal void ShowResultView(string viewType, JobResult result)
     {
-        contentPanel.Controls.Clear();
+        ClearContent();
 
         switch (viewType)
         {
@@ -224,7 +213,7 @@ public partial class MainForm : Form
                     Dock = DockStyle.Fill
                 };
                 contentPanel.Controls.Add(errorLabel);
-                _currentView = null;
+                SetDoneEnabled(true);
                 return;
         }
 
@@ -235,27 +224,64 @@ public partial class MainForm : Form
         }
 
         configurationLinkLabel.Enabled = true;
-        doneLinkLabel.Enabled = true;
-        
-        // Switch to "Done" tab
-        SwitchToDoneView();
+        SetDoneEnabled(true);
     }
 
     private void SwitchToConfigurationView()
     {
         configurationLinkLabel.Font = new Font(configurationLinkLabel.Font, FontStyle.Underline);
         doneLinkLabel.Font = new Font(doneLinkLabel.Font, FontStyle.Regular);
-        
+
         // TODO: Show configuration view
         ShowIdleView();
     }
 
-    private void SwitchToDoneView()
+    /// <summary>
+    /// Clears the current result, deletes Dropzone-owned temp files, and restores the idle prompt.
+    /// Original files dropped from disk are not deleted.
+    /// </summary>
+    internal void CompleteJobAndReturnToIdle()
     {
-        configurationLinkLabel.Font = new Font(configurationLinkLabel.Font, FontStyle.Regular);
-        doneLinkLabel.Font = new Font(doneLinkLabel.Font, FontStyle.Underline);
-        
-        // Keep current view (result view)
+        ShowIdleView();
+    }
+
+    private void SetDoneEnabled(bool enabled)
+    {
+        doneLinkLabel.Enabled = enabled;
+        doneLinkLabel.TabStop = enabled;
+    }
+
+    internal bool IsDoneEnabled => doneLinkLabel.Enabled;
+
+    internal bool IsIdlePromptVisible =>
+        contentPanel.Controls.OfType<Label>().Any(label =>
+            label.Text.Contains("Släpp något här", StringComparison.Ordinal));
+
+    internal void RegisterOwnedTempFile(string path)
+    {
+        _ownedTempFiles.Add(path);
+    }
+
+    private void CleanupOwnedTempFiles()
+    {
+        foreach (var path in _ownedTempFiles)
+        {
+            _tempFileService.CleanupFile(path);
+        }
+
+        _ownedTempFiles.Clear();
+    }
+
+    private void ClearContent()
+    {
+        var controls = contentPanel.Controls.Cast<Control>().ToList();
+        contentPanel.Controls.Clear();
+        foreach (var control in controls)
+        {
+            control.Dispose();
+        }
+
+        _currentView = null;
     }
 
     private void configurationLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -265,18 +291,17 @@ public partial class MainForm : Form
 
     private void doneLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
-        SwitchToDoneView();
+        if (!doneLinkLabel.Enabled)
+        {
+            return;
+        }
+
+        CompleteJobAndReturnToIdle();
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        // Cleanup temp file
-        if (!string.IsNullOrEmpty(_currentTempFile) && File.Exists(_currentTempFile))
-        {
-            _tempFileService.CleanupFile(_currentTempFile);
-        }
-
-        // Cleanup old temp files (older than 24 hours)
+        CleanupOwnedTempFiles();
         _tempFileService.CleanupOldFiles(TimeSpan.FromHours(24));
 
         base.OnFormClosing(e);
