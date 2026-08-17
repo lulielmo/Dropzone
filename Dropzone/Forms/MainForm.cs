@@ -14,6 +14,9 @@ public partial class MainForm : Form
     private readonly Dictionary<string, Type> _handlerTypes;
     private readonly List<string> _ownedTempFiles = new();
     private UserControl? _currentView;
+    private bool _isInTray;
+    private bool _isExiting;
+    private bool _isRestoringFromTray;
 
     public MainForm()
     {
@@ -33,6 +36,10 @@ public partial class MainForm : Form
         AllowDrop = true;
         DragEnter += MainForm_DragEnter;
         DragDrop += MainForm_DragDrop;
+
+        var trayIcon = (Icon)SystemIcons.Application.Clone();
+        notifyIcon.Icon = trayIcon;
+        Icon = (Icon)trayIcon.Clone();
 
         // Show idle view initially
         ShowIdleView();
@@ -299,8 +306,89 @@ public partial class MainForm : Form
         CompleteJobAndReturnToIdle();
     }
 
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        notifyIcon.Visible = true;
+        ApplyAlwaysOnTopForVisibility();
+    }
+
+    protected override void OnResize(EventArgs e)
+    {
+        base.OnResize(e);
+        if (!_isExiting && !_isRestoringFromTray && WindowState == FormWindowState.Minimized)
+        {
+            HideToTray();
+        }
+    }
+
+    internal bool IsInTray => _isInTray;
+
+    internal void HideToTray()
+    {
+        if (_isExiting || _isInTray)
+        {
+            return;
+        }
+
+        _isInTray = true;
+        notifyIcon.Visible = true;
+        ShowInTaskbar = false;
+        Hide();
+        // Leave Minimized behind, otherwise the next Show() only restores the taskbar icon.
+        WindowState = FormWindowState.Normal;
+        ApplyAlwaysOnTopForVisibility();
+    }
+
+    internal void RestoreFromTray()
+    {
+        if (_isExiting)
+        {
+            return;
+        }
+
+        _isRestoringFromTray = true;
+        try
+        {
+            ShowInTaskbar = true;
+            Show();
+            WindowState = FormWindowState.Normal;
+            _isInTray = false;
+            ApplyAlwaysOnTopForVisibility();
+            Activate();
+            BringToFront();
+        }
+        finally
+        {
+            _isRestoringFromTray = false;
+        }
+    }
+
+    private void ApplyAlwaysOnTopForVisibility()
+    {
+        // Stay above other windows only while the form is actually shown.
+        TopMost = Visible && !_isInTray && WindowState != FormWindowState.Minimized;
+    }
+
+    private void notifyIcon_DoubleClick(object? sender, EventArgs e)
+    {
+        RestoreFromTray();
+    }
+
+    private void showTrayMenuItem_Click(object? sender, EventArgs e)
+    {
+        RestoreFromTray();
+    }
+
+    private void exitTrayMenuItem_Click(object? sender, EventArgs e)
+    {
+        Close();
+    }
+
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
+        _isExiting = true;
+        notifyIcon.Visible = false;
         CleanupOwnedTempFiles();
         _tempFileService.CleanupOldFiles(TimeSpan.FromHours(24));
 

@@ -49,7 +49,7 @@ dotnet build Dropzone.sln
 dotnet run --project Dropzone
 ```
 
-4. Drag a matching URL or file onto the window. When you are finished with the result, click **Done** to clear it and return to idle.
+4. Drag a matching URL or file onto the window. When you are finished with the result, click **Done** to clear it and return to idle. Minimize to send Dropzone to the system tray; double-click the tray icon to bring it back (always on top while visible).
 
 ## Configuration
 

@@ -16,13 +16,12 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [x] Excel-compatible multi-cell copy from the result grid (Ctrl+A / Ctrl+C, TSV without headers)
 - [x] **Done** action: clear result, cleanup owned temp files, restore idle; enabled only while a result is shown
 - [x] Script diagnostics in the result UI (`messages` JSON → `JobResult` → prominent panel in `GridAndCommentView`)
+- [x] Always on top while visible; minimize to system tray (restore on double-click / Show)
 
 ## Next up (priority order)
 
-### 1. Window behavior (desktop utility)
+### 1. Window behavior (optional follow-ups)
 
-- [ ] **Always on top** when the window is visible (not minimized / not in tray)
-- [ ] Minimize to **system tray / hidden icons**; restore on double-click (NotifyIcon)
 - [ ] Optional: global **hotkey** to show/hide from tray
 - [ ] Optional: start with Windows / single-instance guard
 

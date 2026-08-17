@@ -213,6 +213,10 @@ The main window has three content states:
 
 **Done** is an action, not a tab. Clicking it disposes the result view, deletes Dropzone-owned temp files (URL downloads under `%LocalAppData%\Dropzone\temp`), restores idle, and disables itself. Files the user dropped from disk are not deleted. Starting a new drop, or closing the window, also cleans owned temps. Files older than 24 hours in the temp folder are removed on close.
 
+## Window behavior
+
+While Dropzone is visible it stays **always on top** so it remains available next to Medius. Minimizing hides the window to the system tray (including the hidden-icons overflow). Double-click the tray icon, or choose **Show**, to restore it on top. **Exit** on the tray menu (or the window Close button) quits the app and runs temp-file cleanup.
+
 ## How to add a new handler
 
 1. Implement `IJobHandler` in `Dropzone/Handlers/`.

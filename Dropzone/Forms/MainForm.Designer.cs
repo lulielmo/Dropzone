@@ -7,11 +7,20 @@ partial class MainForm
     private LinkLabel configurationLinkLabel;
     private LinkLabel doneLinkLabel;
     private Panel navigationPanel;
+    private NotifyIcon notifyIcon;
+    private ContextMenuStrip trayMenu;
+    private ToolStripMenuItem showTrayMenuItem;
+    private ToolStripMenuItem exitTrayMenuItem;
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
+            if (notifyIcon != null)
+            {
+                notifyIcon.Visible = false;
+            }
+
             components?.Dispose();
         }
         base.Dispose(disposing);
@@ -19,11 +28,17 @@ partial class MainForm
 
     private void InitializeComponent()
     {
+        components = new System.ComponentModel.Container();
         navigationPanel = new Panel();
         configurationLinkLabel = new LinkLabel();
         doneLinkLabel = new LinkLabel();
         contentPanel = new Panel();
+        notifyIcon = new NotifyIcon(components);
+        trayMenu = new ContextMenuStrip(components);
+        showTrayMenuItem = new ToolStripMenuItem();
+        exitTrayMenuItem = new ToolStripMenuItem();
         navigationPanel.SuspendLayout();
+        trayMenu.SuspendLayout();
         SuspendLayout();
 
         // Navigation Panel
@@ -61,6 +76,21 @@ partial class MainForm
         contentPanel.Name = "contentPanel";
         contentPanel.Padding = new Padding(0);
 
+        // Tray menu
+        showTrayMenuItem.Name = "showTrayMenuItem";
+        showTrayMenuItem.Text = "Show";
+        showTrayMenuItem.Click += showTrayMenuItem_Click;
+        exitTrayMenuItem.Name = "exitTrayMenuItem";
+        exitTrayMenuItem.Text = "Exit";
+        exitTrayMenuItem.Click += exitTrayMenuItem_Click;
+        trayMenu.Items.AddRange(new ToolStripItem[] { showTrayMenuItem, exitTrayMenuItem });
+        trayMenu.Name = "trayMenu";
+
+        notifyIcon.ContextMenuStrip = trayMenu;
+        notifyIcon.Text = "Dropzone";
+        notifyIcon.Visible = false;
+        notifyIcon.DoubleClick += notifyIcon_DoubleClick;
+
         // MainForm
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
@@ -71,9 +101,11 @@ partial class MainForm
         Name = "MainForm";
         Text = "Dropzone";
         StartPosition = FormStartPosition.CenterScreen;
+        TopMost = true;
 
         navigationPanel.ResumeLayout(false);
         navigationPanel.PerformLayout();
+        trayMenu.ResumeLayout(false);
         ResumeLayout(false);
     }
 }
