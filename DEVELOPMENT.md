@@ -217,6 +217,8 @@ The main window has three content states:
 
 While Dropzone is visible it stays **always on top** so it remains available next to Medius. Minimizing hides the window to the system tray (including the hidden-icons overflow). Double-click the tray icon, or choose **Show**, to restore it on top. **Exit** on the tray menu (or the window Close button) quits the app and runs temp-file cleanup.
 
+Modal UI (job picker, error `MessageBox`) temporarily turns off always-on-top so the dialog is not hidden behind the main window.
+
 ## How to add a new handler
 
 1. Implement `IJobHandler` in `Dropzone/Handlers/`.

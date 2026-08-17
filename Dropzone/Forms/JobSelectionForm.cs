@@ -26,6 +26,7 @@ public class JobSelectionForm : Form
         MinimizeBox = false;
         MaximizeBox = false;
         ShowInTaskbar = false;
+        TopMost = true;
         ClientSize = new Size(420, 260);
         Padding = new Padding(12);
 

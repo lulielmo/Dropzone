@@ -73,6 +73,26 @@ public class MainFormWindowBehaviorTests
         });
     }
 
+    [Fact]
+    public void RunModalUi_ShouldDropAlwaysOnTopDuringDialogAndRestoreAfter()
+    {
+        RunSta(() =>
+        {
+            using var form = new MainForm();
+            form.Show();
+
+            var topMostDuringDialog = true;
+            form.RunModalUi(() =>
+            {
+                topMostDuringDialog = form.TopMost;
+                return 0;
+            });
+
+            topMostDuringDialog.Should().BeFalse();
+            form.TopMost.Should().BeTrue();
+        });
+    }
+
     private static void RunSta(Action action)
     {
         Exception? caught = null;

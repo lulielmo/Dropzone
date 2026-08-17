@@ -84,7 +84,8 @@ public partial class MainForm : Form
 
         if (string.IsNullOrEmpty(url) && string.IsNullOrEmpty(filePath))
         {
-            MessageBox.Show("Invalid drop: Please drop a URL or file.", "Dropzone", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            ShowOwnedMessage("Invalid drop: Please drop a URL or file.", "Dropzone",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
@@ -98,7 +99,7 @@ public partial class MainForm : Form
             var matchingJobs = _configLoader.FindMatchingJobs(url, filePath);
             if (matchingJobs.Count == 0)
             {
-                MessageBox.Show($"No handler found for this input.\nURL: {url}\nFile: {filePath}",
+                ShowOwnedMessage($"No handler found for this input.\nURL: {url}\nFile: {filePath}",
                     "Dropzone", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ShowIdleView();
                 return;
@@ -142,7 +143,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error processing input: {ex.Message}", "Dropzone Error",
+            ShowOwnedMessage($"Error processing input: {ex.Message}", "Dropzone Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             ShowIdleView();
         }
@@ -160,7 +161,7 @@ public partial class MainForm : Form
         }
 
         using var selectionForm = new JobSelectionForm(matchingJobs);
-        var result = selectionForm.ShowDialog(this);
+        var result = RunModalUi(() => selectionForm.ShowDialog(this));
         return result == DialogResult.OK ? selectionForm.SelectedJob : null;
     }
 
@@ -368,6 +369,27 @@ public partial class MainForm : Form
     {
         // Stay above other windows only while the form is actually shown.
         TopMost = Visible && !_isInTray && WindowState != FormWindowState.Minimized;
+    }
+
+    /// <summary>
+    /// Temporarily drops always-on-top so a modal dialog is not trapped behind this form.
+    /// </summary>
+    internal T RunModalUi<T>(Func<T> action)
+    {
+        TopMost = false;
+        try
+        {
+            return action();
+        }
+        finally
+        {
+            ApplyAlwaysOnTopForVisibility();
+        }
+    }
+
+    private void ShowOwnedMessage(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
+    {
+        RunModalUi(() => MessageBox.Show(this, text, caption, buttons, icon));
     }
 
     private void notifyIcon_DoubleClick(object? sender, EventArgs e)
