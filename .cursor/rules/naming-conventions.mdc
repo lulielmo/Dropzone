@@ -22,7 +22,7 @@ alwaysApply: true
 ## Examples
 
 - Good handler: `PythonScriptHandler`
-- Avoid: `AteaInvoiceHandler` (legacy name; rename when touching that area)
+- Avoid: `AteaInvoiceHandler` (vendor + domain in a strategy type)
 - Good job name: `"Atea Invoice License"`
 - Good view: `GridAndCommentView`
 

@@ -29,7 +29,7 @@ public partial class MainForm : Form
         // Register handler types
         _handlerTypes = new Dictionary<string, Type>
         {
-            { "AteaInvoiceHandler", typeof(AteaInvoiceHandler) }
+            { "PythonScriptHandler", typeof(PythonScriptHandler) }
         };
 
         // Setup drag and drop
@@ -163,6 +163,7 @@ public partial class MainForm : Form
             // Process with handler
             var result = await handler.ProcessAsync(inputPath, jobConfig.HandlerConfig);
             result.Title = jobConfig.Name;
+            result.Type = jobConfig.Name;
 
             ShowResultView(jobConfig.ViewType, result);
         }

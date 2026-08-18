@@ -4,13 +4,13 @@ using Dropzone.Services;
 namespace Dropzone.Handlers;
 
 /// <summary>
-/// Handler for Atea invoice license files
+/// Runs a configured Python script with one CLI argument and parses JSON on stdout.
 /// </summary>
-public class AteaInvoiceHandler : IJobHandler
+public class PythonScriptHandler : IJobHandler
 {
     private readonly PythonProcessService _pythonService;
 
-    public AteaInvoiceHandler()
+    public PythonScriptHandler()
     {
         _pythonService = new PythonProcessService();
     }
@@ -73,17 +73,11 @@ public class AteaInvoiceHandler : IJobHandler
             };
         }
 
-        var result = await _pythonService.ExecuteScriptAsync(
+        return await _pythonService.ExecuteScriptAsync(
             pythonExe,
             pythonScript,
             inputPath,
             string.IsNullOrWhiteSpace(workingDirectory) ? null : workingDirectory,
             cancellationToken);
-        
-        result.Type = "AteaInvoice";
-        result.Title = "Atea Invoice License";
-
-        return result;
     }
 }
-

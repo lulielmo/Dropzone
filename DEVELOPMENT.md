@@ -18,7 +18,7 @@ Team communication can be in Swedish, including:
 - Pull request discussions
 - Code review comments
 - Meetings
-- Local notes (`dev-notes.md`)
+- Optional local notes (e.g. a gitignored `dev-notes.md`)
 
 ### Code (English)
 
@@ -67,7 +67,7 @@ Company and product names belong in the **job**, not in handler or view type nam
 
 Good:
 
-- `PythonScriptHandler` — run a configured Python script on one input file
+- `PythonScriptHandler` — run a configured Python script with one CLI argument (file path or token)
 - `BatchFolderHandler` — process a folder (future)
 - `HttpApiHandler` — call an HTTP API (future)
 
@@ -90,11 +90,7 @@ Handler and view should align on the **shape of `JobResult`** (rows + comment, f
 
 ### Result metadata
 
-Prefer taking display title / type from the **job config** (e.g. `name`) rather than hard-coding vendor strings inside a generic handler.
-
-## Current handler note
-
-The first handler implementation is still named `AteaInvoiceHandler`. Its processing logic is already generic (config-driven Python execution). A rename to something like `PythonScriptHandler` is planned; until then, treat the class as the default Python script strategy despite the name.
+Prefer taking display title / type from the **job config** `name`. The host sets `JobResult.Title` and `JobResult.Type` after the handler returns; generic handlers must not hard-code vendor strings.
 
 ## How to add a new job (config only)
 

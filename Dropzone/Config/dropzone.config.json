@@ -5,7 +5,7 @@
       "urlRegex": ".*mediusflow\\.com.*",
       "domainName": "mediusflow.com",
       "fileNameRegex": "einvoicecapture-embedded-attachment",
-      "handlerType": "AteaInvoiceHandler",
+      "handlerType": "PythonScriptHandler",
       "viewType": "GridAndCommentView",
       "handlerConfig": {
         "pythonExe": "C:\\Users\\jomu\\VS Code\\InvoiceHelper\\.venv\\Scripts\\python.exe",
@@ -16,7 +16,7 @@
     {
       "name": "Atea Azure Consumption",
       "textRegex": "AZURECONS",
-      "handlerType": "AteaInvoiceHandler",
+      "handlerType": "PythonScriptHandler",
       "viewType": "GridAndCommentView",
       "handlerConfig": {
         "pythonExe": "C:\\Users\\jomu\\VS Code\\AzureCostHandling\\.venv\\Scripts\\python.exe",

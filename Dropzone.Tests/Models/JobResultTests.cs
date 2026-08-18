@@ -40,7 +40,7 @@ public class JobResultTests
             Rows = rows,
             Comment = "Test comment",
             OutputFile = "output.json",
-            Type = "AteaInvoice",
+            Type = "SampleJob",
             Title = "Test Title",
             Success = true,
             ErrorMessage = null,
@@ -52,7 +52,7 @@ public class JobResultTests
         result.Rows[0].KonProj.Should().Be("5420");
         result.Comment.Should().Be("Test comment");
         result.OutputFile.Should().Be("output.json");
-        result.Type.Should().Be("AteaInvoice");
+        result.Type.Should().Be("SampleJob");
         result.Title.Should().Be("Test Title");
         result.Success.Should().BeTrue();
     }

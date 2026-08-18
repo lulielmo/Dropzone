@@ -59,7 +59,7 @@ Each job can define:
 
 - `name` — human-readable business case label
 - `urlRegex` / `domainName` / `fileNameRegex` / `fileExtension` / `textRegex` — matching rules
-- `handlerType` — registered handler class name
+- `handlerType` — registered handler class name (currently `PythonScriptHandler`)
 - `viewType` — result view to show
 - `handlerConfig` — handler-specific settings (e.g. `pythonScript`, `pythonExe`, `workingDirectory`, `inputKind`)
 
@@ -79,5 +79,4 @@ More detail: [Dropzone.Tests/README.md](Dropzone.Tests/README.md).
 |------|---------|
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Conventions, architecture extension guide |
 | [TODO.md](TODO.md) | Shared backlog |
-| `dev-notes.md` | Local scratch notes (gitignored) |
 | `.cursor/rules/` | Cursor agent rules |

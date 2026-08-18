@@ -8,7 +8,7 @@ alwaysApply: true
 ## Language
 
 - **Code, commits, shared docs**: English (identifiers, errors, logs, README, DEVELOPMENT.md, XML comments).
-- **Team chat / PR discussion / local `dev-notes.md`**: Swedish is fine.
+- **Team chat / PR discussion / optional local notes** (e.g. a gitignored `dev-notes.md`): Swedish is fine.
 
 ## Commits
 

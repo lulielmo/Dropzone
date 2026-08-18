@@ -18,6 +18,7 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [x] Script diagnostics in the result UI (`messages` JSON → `JobResult` → prominent panel in `GridAndCommentView`)
 - [x] Always on top while visible; minimize to system tray (restore on double-click / Show)
 - [x] Azure Consumption job via dropped Medius text (`AZURECONS` + period → `YYYYMM`)
+- [x] Rename `AteaInvoiceHandler` → `PythonScriptHandler`; result title/type from job `name`
 
 ## Next up (priority order)
 
@@ -29,10 +30,6 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 ### 2. Code quality / hygiene (good “waiting for invoice” work)
 
 - [ ] Enable Visual Studio / .NET **code analysis** on rebuild (e.g. analyzers + `.editorconfig`, treat warnings as agreed)
-- [ ] Rename `AteaInvoiceHandler` → `PythonScriptHandler` (or equivalent strategy name)
-  - [ ] Update class, tests, and `handlerType` registration in `MainForm`
-  - [ ] Update `dropzone.config.json` samples
-  - [ ] Move hard-coded `JobResult.Type` / `Title` off the handler onto job config where possible
 - [ ] Remove leftover `Form1` scaffolding if unused
 - [ ] Prefer dependency injection for services used by handlers (`PythonProcessService`, etc.) to improve testability
 - [ ] Confirm view registration pattern matches handler registration (document any gaps)

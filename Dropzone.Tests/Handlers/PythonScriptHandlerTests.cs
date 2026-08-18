@@ -5,15 +5,15 @@ using FluentAssertions;
 namespace Dropzone.Tests.Handlers;
 
 /// <summary>
-/// Tests for AteaInvoiceHandler
+/// Tests for PythonScriptHandler
 /// </summary>
-public class AteaInvoiceHandlerTests
+public class PythonScriptHandlerTests
 {
     [Fact]
     public void Constructor_ShouldInitializeSuccessfully()
     {
         // Act
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
 
         // Assert
         handler.Should().NotBeNull();
@@ -24,7 +24,7 @@ public class AteaInvoiceHandlerTests
     public async Task ProcessAsync_WithNullConfig_ShouldReturnErrorResult()
     {
         // Arrange
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
         var inputPath = "test.pdf";
 
         // Act
@@ -40,7 +40,7 @@ public class AteaInvoiceHandlerTests
     public async Task ProcessAsync_WithMissingPythonScriptConfig_ShouldReturnErrorResult()
     {
         // Arrange
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
         var inputPath = "test.pdf";
         var config = new Dictionary<string, string>
         {
@@ -60,7 +60,7 @@ public class AteaInvoiceHandlerTests
     public async Task ProcessAsync_WithNonExistentPythonScript_ShouldReturnErrorResult()
     {
         // Arrange
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
         var inputPath = "test.pdf";
         var config = new Dictionary<string, string>
         {
@@ -80,7 +80,7 @@ public class AteaInvoiceHandlerTests
     public async Task ProcessAsync_WithNonExistentInputFile_ShouldReturnErrorResult()
     {
         // Arrange
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
         var inputPath = "C:\\nonexistent\\file.pdf";
         
         // Create a temporary Python script for this test
@@ -114,7 +114,7 @@ public class AteaInvoiceHandlerTests
     [Fact]
     public async Task ProcessAsync_WithCliArgumentInputKind_ShouldNotRequireInputFile()
     {
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
         var tempScript = Path.Combine(Path.GetTempPath(), $"test_script_{Guid.NewGuid()}.py");
         File.WriteAllText(tempScript, """
             import json
@@ -148,7 +148,7 @@ public class AteaInvoiceHandlerTests
     public async Task ProcessAsync_WithNonExistentWorkingDirectory_ShouldReturnErrorResult()
     {
         // Arrange
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
         var inputPath = Path.Combine(Path.GetTempPath(), $"test_input_{Guid.NewGuid()}.pdf");
         var tempScript = Path.Combine(Path.GetTempPath(), $"test_script_{Guid.NewGuid()}.py");
 
@@ -181,17 +181,15 @@ public class AteaInvoiceHandlerTests
     }
 
     [Fact]
-    public async Task ProcessAsync_WithValidConfig_ShouldSetTypeAndTitle()
+    public async Task ProcessAsync_ShouldNotSetResultTitleOrType()
     {
         // Arrange
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
         var inputPath = Path.Combine(Path.GetTempPath(), $"test_input_{Guid.NewGuid()}.pdf");
         var tempScript = Path.Combine(Path.GetTempPath(), $"test_script_{Guid.NewGuid()}.py");
         
-        // Create temporary files
         File.WriteAllText(inputPath, "test content");
         
-        // Create a simple Python script that returns JSON
         var jsonOutput = """
             {
                 "success": true,
@@ -218,8 +216,8 @@ public class AteaInvoiceHandlerTests
 
             // Assert
             result.Should().NotBeNull();
-            result.Type.Should().Be("AteaInvoice");
-            result.Title.Should().Be("Atea Invoice License");
+            result.Type.Should().BeNull();
+            result.Title.Should().BeNull();
         }
         finally
         {
@@ -234,7 +232,7 @@ public class AteaInvoiceHandlerTests
     public async Task ProcessAsync_ShouldUseCustomPythonExeFromConfig()
     {
         // Arrange
-        var handler = new AteaInvoiceHandler();
+        var handler = new PythonScriptHandler();
         var inputPath = Path.Combine(Path.GetTempPath(), $"test_input_{Guid.NewGuid()}.pdf");
         var tempScript = Path.Combine(Path.GetTempPath(), $"test_script_{Guid.NewGuid()}.py");
         
@@ -266,4 +264,3 @@ public class AteaInvoiceHandlerTests
         }
     }
 }
-

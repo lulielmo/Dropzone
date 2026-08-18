@@ -218,13 +218,13 @@ public class ConfigLoaderTests : IDisposable
                 {
                   "name": "ACP Job",
                   "domainName": "mediusflow.com",
-                  "handlerType": "AteaInvoiceHandler",
+                  "handlerType": "PythonScriptHandler",
                   "viewType": "GridAndCommentView"
                 },
                 {
                   "name": "Azure Job",
                   "domainName": "mediusflow.com",
-                  "handlerType": "AteaInvoiceHandler",
+                  "handlerType": "PythonScriptHandler",
                   "viewType": "GridAndCommentView"
                 },
                 {
@@ -283,13 +283,13 @@ public class ConfigLoaderTests : IDisposable
                 {
                   "name": "ACP Job",
                   "fileNameRegex": "einvoicecapture-embedded-attachment",
-                  "handlerType": "AteaInvoiceHandler",
+                  "handlerType": "PythonScriptHandler",
                   "viewType": "GridAndCommentView"
                 },
                 {
                   "name": "Azure Job",
                   "textRegex": "AZURECONS",
-                  "handlerType": "AteaInvoiceHandler",
+                  "handlerType": "PythonScriptHandler",
                   "viewType": "GridAndCommentView"
                 }
               ]
