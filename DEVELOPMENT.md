@@ -99,14 +99,16 @@ The first handler implementation is still named `AteaInvoiceHandler`. Its proces
 ## How to add a new job (config only)
 
 1. Add an entry under `jobs` in `Dropzone/Config/dropzone.config.json`.
-2. Set matching rules (`urlRegex`, `domainName`, `fileNameRegex`, and/or `fileExtension`).
+2. Set matching rules (`urlRegex`, `domainName`, `fileNameRegex`, `fileExtension`, and/or `textRegex`).
 3. Set `handlerType` and `viewType` to existing registered types.
 4. Fill `handlerConfig` (script path, exe, working directory, etc.).
-5. Run and drop a matching URL or file.
+5. Run and drop a matching URL, file, or text snippet.
 
 No C# change is required if handler and view already exist and are registered.
 
 `fileNameRegex` is matched against the **file name only** (not the full path), for both local file drops and the file segment of a URL. Use it for system-specific attachment names (e.g. Medius `einvoicecapture-embedded-attachment`) without tying jobs to a Downloads folder.
+
+`textRegex` is matched against **dropped plain text** (not URLs). Use it when the trigger is selected PDF text rather than a file, e.g. Medius line `AZURECONS`.
 
 ### Python / uv projects
 
@@ -122,10 +124,21 @@ For Python jobs managed with [uv](https://docs.astral.sh/uv/), point config at t
 
 - Create/update the env with `uv sync` in the Python project (outside Dropzone).
 - `workingDirectory` ensures relative paths inside the script (`data/`, `logs/`, `output/`, etc.) resolve correctly.
-- Dropzone invokes: `pythonExe "pythonScript" "inputFile"` with that working directory.
+- Dropzone invokes: `pythonExe "pythonScript" "inputArgument"` with that working directory.
+- For file jobs, `inputArgument` is the input file path. For `handlerConfig.inputKind` = `cliArgument`, it is a token such as a billing period `YYYYMM` (no file is created or required).
 - Stdout/stderr are read as **UTF-8** (`PYTHONIOENCODING` / `PYTHONUTF8` are also set for the child process). Scripts should emit UTF-8 JSON (`ensure_ascii=False` in Python is fine).
 
-**Script contract (implemented in the Python project, not in Dropzone):** accept the input file path as a CLI argument and write a single JSON object to stdout. Log to stderr or files so stdout stays valid JSON.
+**Script contract (implemented in the Python project, not in Dropzone):** accept the CLI argument (file path **or** period token) and write a single JSON object to stdout. Log to stderr or files so stdout stays valid JSON. Interactive `input()` menus must not run in this mode.
+
+### Dropped text and billing period
+
+Plain text that is not an `http(s)`/`file` URL is matched with `textRegex`. When the job uses `inputKind: cliArgument`, Dropzone parses a billing period from the text and passes `YYYYMM`:
+
+- `Period 2026-06-01 -- 2026-06-30` → `202606` (start month)
+- `Period 2026-06` → `202606`
+- `202606` → `202606`
+
+The job picker is still used if more than one job matches. A text-only Azure job should not share ACP file matchers.
 
 Row objects follow Medius Excel column order (A–J):
 

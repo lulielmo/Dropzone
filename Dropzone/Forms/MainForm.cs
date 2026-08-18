@@ -61,18 +61,8 @@ public partial class MainForm : Form
 
         string? url = null;
         string? filePath = null;
+        string? droppedText = null;
 
-        // Check for URL (text)
-        if (e.Data.GetDataPresent(DataFormats.Text))
-        {
-            var text = e.Data.GetData(DataFormats.Text) as string;
-            if (!string.IsNullOrEmpty(text) && Uri.TryCreate(text, UriKind.Absolute, out _))
-            {
-                url = text;
-            }
-        }
-
-        // Check for file drop
         if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
             var files = e.Data.GetData(DataFormats.FileDrop) as string[];
@@ -82,24 +72,41 @@ public partial class MainForm : Form
             }
         }
 
-        if (string.IsNullOrEmpty(url) && string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrEmpty(filePath) && e.Data.GetDataPresent(DataFormats.Text))
         {
-            ShowOwnedMessage("Invalid drop: Please drop a URL or file.", "Dropzone",
+            var text = e.Data.GetData(DataFormats.Text) as string;
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                if (Uri.TryCreate(text.Trim(), UriKind.Absolute, out var uri)
+                    && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeFile))
+                {
+                    url = text.Trim();
+                }
+                else
+                {
+                    droppedText = text;
+                }
+            }
+        }
+
+        if (string.IsNullOrEmpty(url) && string.IsNullOrEmpty(filePath) && string.IsNullOrWhiteSpace(droppedText))
+        {
+            ShowOwnedMessage("Invalid drop: Please drop a URL, file, or matching text.", "Dropzone",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-        await ProcessInput(url, filePath);
+        await ProcessInput(url, filePath, droppedText);
     }
 
-    private async Task ProcessInput(string? url, string? filePath)
+    private async Task ProcessInput(string? url, string? filePath, string? droppedText)
     {
         try
         {
-            var matchingJobs = _configLoader.FindMatchingJobs(url, filePath);
+            var matchingJobs = _configLoader.FindMatchingJobs(url, filePath, droppedText);
             if (matchingJobs.Count == 0)
             {
-                ShowOwnedMessage($"No handler found for this input.\nURL: {url}\nFile: {filePath}",
+                ShowOwnedMessage($"No handler found for this input.\nURL: {url}\nFile: {filePath}\nText: {Truncate(droppedText, 120)}",
                     "Dropzone", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ShowIdleView();
                 return;
@@ -114,14 +121,31 @@ public partial class MainForm : Form
 
             ShowProcessingView();
 
-            // Download file if URL. Dropped local files are used as-is and never deleted.
-            string inputPath = filePath ?? string.Empty;
-            if (!string.IsNullOrEmpty(url))
+            var inputKind = jobConfig.HandlerConfig?.GetValueOrDefault("inputKind", "file") ?? "file";
+            string inputPath;
+            if (inputKind.Equals("cliArgument", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!BillingPeriodParser.TryParse(droppedText, out var period))
+                {
+                    ShowOwnedMessage(
+                        "Could not find a billing period in the dropped text.\nExpected e.g. Period 2026-06-01 -- 2026-06-30.",
+                        "Dropzone", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ShowIdleView();
+                    return;
+                }
+
+                inputPath = period;
+            }
+            else if (!string.IsNullOrEmpty(url))
             {
                 var tempPath = _tempFileService.GetTempFilePath(Path.GetFileName(new Uri(url).AbsolutePath));
                 RegisterOwnedTempFile(tempPath);
                 await _downloadService.DownloadFileAsync(url, tempPath);
                 inputPath = tempPath;
+            }
+            else
+            {
+                inputPath = filePath ?? string.Empty;
             }
 
             // Create handler instance
@@ -138,6 +162,7 @@ public partial class MainForm : Form
 
             // Process with handler
             var result = await handler.ProcessAsync(inputPath, jobConfig.HandlerConfig);
+            result.Title = jobConfig.Name;
 
             ShowResultView(jobConfig.ViewType, result);
         }
@@ -147,6 +172,17 @@ public partial class MainForm : Form
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             ShowIdleView();
         }
+    }
+
+    private static string Truncate(string? value, int maxLength)
+    {
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
+
+        var normalized = value.ReplaceLineEndings(" ");
+        return normalized.Length <= maxLength
+            ? normalized
+            : normalized[..maxLength] + "…";
     }
 
     /// <summary>

@@ -20,6 +20,7 @@ public class JobConfigTests
         config.FileNameRegex.Should().BeNull();
         config.FileExtension.Should().BeNull();
         config.DomainName.Should().BeNull();
+        config.TextRegex.Should().BeNull();
         config.HandlerType.Should().BeEmpty();
         config.ViewType.Should().BeEmpty();
         config.HandlerConfig.Should().BeNull();
@@ -131,6 +132,32 @@ public class JobConfigTests
 
         // Assert
         result.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("Tillverkarens artikelnummer: AZURECONS\r\nPeriod 2026-06-01 -- 2026-06-30", true)]
+    [InlineData("azurecons", true)]
+    [InlineData("Power BI Pro", false)]
+    [InlineData(null, false)]
+    public void Matches_ShouldMatchByTextRegex(string? text, bool expectedMatch)
+    {
+        var config = new JobConfig
+        {
+            TextRegex = "AZURECONS"
+        };
+
+        config.Matches(null, null, text).Should().Be(expectedMatch);
+    }
+
+    [Fact]
+    public void Matches_ShouldNotTreatDroppedTextAsUrlJob()
+    {
+        var acp = new JobConfig
+        {
+            FileNameRegex = "einvoicecapture-embedded-attachment"
+        };
+
+        acp.Matches(null, null, "AZURECONS\nPeriod 2026-06-01 -- 2026-06-30").Should().BeFalse();
     }
 
     [Fact]

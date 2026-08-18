@@ -12,15 +12,21 @@ public class JobConfig
     public string? FileNameRegex { get; set; }
     public string? FileExtension { get; set; }
     public string? DomainName { get; set; }
+    public string? TextRegex { get; set; }
     public string HandlerType { get; set; } = string.Empty;
     public string ViewType { get; set; } = string.Empty;
     public Dictionary<string, string>? HandlerConfig { get; set; }
 
     /// <summary>
-    /// Checks if this config matches the given URL or file path
+    /// Checks if this config matches the given URL, file path, or dropped text.
     /// </summary>
-    public bool Matches(string? url, string? filePath)
+    public bool Matches(string? url, string? filePath, string? text = null)
     {
+        if (!string.IsNullOrEmpty(text) && !string.IsNullOrEmpty(TextRegex)
+            && Regex.IsMatch(text, TextRegex, RegexOptions.IgnoreCase))
+        {
+            return true;
+        }
         if (!string.IsNullOrEmpty(url))
         {
             if (!string.IsNullOrEmpty(UrlRegex) && Regex.IsMatch(url, UrlRegex))

@@ -112,6 +112,39 @@ public class AteaInvoiceHandlerTests
     }
 
     [Fact]
+    public async Task ProcessAsync_WithCliArgumentInputKind_ShouldNotRequireInputFile()
+    {
+        var handler = new AteaInvoiceHandler();
+        var tempScript = Path.Combine(Path.GetTempPath(), $"test_script_{Guid.NewGuid()}.py");
+        File.WriteAllText(tempScript, """
+            import json
+            print(json.dumps({"success": True, "comment": "ok", "rows": []}))
+            """);
+
+        try
+        {
+            var config = new Dictionary<string, string>
+            {
+                { "pythonScript", tempScript },
+                { "pythonExe", "python" },
+                { "inputKind", "cliArgument" }
+            };
+
+            var result = await handler.ProcessAsync("202606", config);
+
+            result.Should().NotBeNull();
+            (result.ErrorMessage ?? string.Empty).Should().NotContain("Input file not found");
+        }
+        finally
+        {
+            if (File.Exists(tempScript))
+            {
+                File.Delete(tempScript);
+            }
+        }
+    }
+
+    [Fact]
     public async Task ProcessAsync_WithNonExistentWorkingDirectory_ShouldReturnErrorResult()
     {
         // Arrange

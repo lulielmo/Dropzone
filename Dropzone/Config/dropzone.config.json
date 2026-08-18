@@ -15,15 +15,14 @@
     },
     {
       "name": "Atea Azure Consumption",
-      "urlRegex": ".*mediusflow\\.com.*",
-      "domainName": "mediusflow.com",
-      "fileNameRegex": "einvoicecapture-embedded-attachment",
+      "textRegex": "AZURECONS",
       "handlerType": "AteaInvoiceHandler",
       "viewType": "GridAndCommentView",
       "handlerConfig": {
-        "pythonScript": "C:\\path\\to\\AzureConsumptionHelper.py",
-        "pythonExe": "python",
-        "workingDirectory": "C:\\path\\to\\AzureConsumptionHelper"
+        "pythonExe": "C:\\Users\\jomu\\VS Code\\AzureCostHandling\\.venv\\Scripts\\python.exe",
+        "pythonScript": "C:\\Users\\jomu\\VS Code\\AzureCostHandling\\azure_cost_processor.py",
+        "workingDirectory": "C:\\Users\\jomu\\VS Code\\AzureCostHandling",
+        "inputKind": "cliArgument"
       }
     }
   ]

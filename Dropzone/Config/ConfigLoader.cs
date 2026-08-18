@@ -43,18 +43,18 @@ public class ConfigLoader
         return config;
     }
 
-    public JobConfig? FindMatchingJob(string? url, string? filePath)
+    public JobConfig? FindMatchingJob(string? url, string? filePath, string? text = null)
     {
-        return FindMatchingJobs(url, filePath).FirstOrDefault();
+        return FindMatchingJobs(url, filePath, text).FirstOrDefault();
     }
 
     /// <summary>
-    /// Returns all jobs that match the given URL or file path, in config order.
+    /// Returns all jobs that match the given URL, file path, or dropped text, in config order.
     /// </summary>
-    public IReadOnlyList<JobConfig> FindMatchingJobs(string? url, string? filePath)
+    public IReadOnlyList<JobConfig> FindMatchingJobs(string? url, string? filePath, string? text = null)
     {
         var config = Load();
-        return config.Jobs.Where(job => job.Matches(url, filePath)).ToList();
+        return config.Jobs.Where(job => job.Matches(url, filePath, text)).ToList();
     }
 }
 

@@ -17,6 +17,7 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [x] **Done** action: clear result, cleanup owned temp files, restore idle; enabled only while a result is shown
 - [x] Script diagnostics in the result UI (`messages` JSON → `JobResult` → prominent panel in `GridAndCommentView`)
 - [x] Always on top while visible; minimize to system tray (restore on double-click / Show)
+- [x] Azure Consumption job via dropped Medius text (`AZURECONS` + period → `YYYYMM`)
 
 ## Next up (priority order)
 
@@ -38,7 +39,15 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 
 ### 3. Idle UX polish
 
-- [ ] **Mouse dodge** in idle only: when the pointer approaches, move the window aside so it does not obscure content underneath; **do not** dodge during an active drag-and-drop onto Dropzone; **never** dodge while a result is displayed
+- [ ] **Window size per state** (idle compact, result large)
+  - [ ] v1: fixed sizes — idle/drop target much smaller than today; result (and maybe processing→result) uses the current ~1000×700; **Done** shrinks back to idle. Lower `MinimumSize` (today 800×500) so idle can be compact
+  - [ ] Later: remember last user-resized size per state (defaults = the v1 sizes)
+  - Keep a stable corner when growing/shrinking so the drop target does not jump
+  - Processing can stay at idle size until a result is shown
+- [ ] **Idle concealment** (pick one; idle only — never while a result is shown; do not hide/move during an active drag-and-drop onto Dropzone)
+  - [ ] Option A — **Edge dock / auto-hide** (ICQ-style): user docks the compact idle window to a screen edge; when the pointer is away it slides mostly off-screen (leave a thin peek); when the pointer nears the peek it slides back in. Delay + hysteresis so it does not flicker
+  - [ ] Option B — **Mouse dodge**: when the pointer approaches, move the window aside so it does not obscure content underneath
+  - Compact idle size (above) makes either option much more usable; prefer A if we only implement one
 - [ ] Clarify idle / processing / result states in the main window
 - [ ] Improve “no matching job” feedback for dropped URLs/files
 - [ ] Detect HTML / login-page download (auth missing) and show a clear message instead of letting Python fail on a non-PDF
@@ -54,7 +63,6 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 ### 5. Smarter routing / more jobs
 
 - [ ] Optional content-based job suggestion (keywords / PDF text) before or instead of manual choice
-- [ ] Second real job via config only (e.g. Azure Consumption) when its script exists — validates config-first
 - [ ] Additional view type when a new result shape appears
 - [ ] Additional handler only when execution strategy diverges from “single file → Python script”
 

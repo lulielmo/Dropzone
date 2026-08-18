@@ -275,6 +275,36 @@ public class ConfigLoaderTests : IDisposable
     }
 
     [Fact]
+    public void FindMatchingJobs_WithDroppedAzureText_ShouldMatchTextRegexOnly()
+    {
+        var configContent = """
+            {
+              "jobs": [
+                {
+                  "name": "ACP Job",
+                  "fileNameRegex": "einvoicecapture-embedded-attachment",
+                  "handlerType": "AteaInvoiceHandler",
+                  "viewType": "GridAndCommentView"
+                },
+                {
+                  "name": "Azure Job",
+                  "textRegex": "AZURECONS",
+                  "handlerType": "AteaInvoiceHandler",
+                  "viewType": "GridAndCommentView"
+                }
+              ]
+            }
+            """;
+        File.WriteAllText(_testConfigPath, configContent);
+        var loader = new ConfigLoader(_testConfigPath);
+        var text = "Tillverkarens artikelnummer: AZURECONS\r\nPeriod 2026-06-01 -- 2026-06-30";
+
+        var jobs = loader.FindMatchingJobs(null, null, text);
+
+        jobs.Should().ContainSingle().Which.Name.Should().Be("Azure Job");
+    }
+
+    [Fact]
     public void Load_WithHandlerConfig_ShouldDeserializeCorrectly()
     {
         // Arrange

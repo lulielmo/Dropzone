@@ -58,10 +58,10 @@ Jobs live in `Dropzone/Config/dropzone.config.json` (copied to the output direct
 Each job can define:
 
 - `name` — human-readable business case label
-- `urlRegex` / `domainName` / `fileNameRegex` / `fileExtension` — matching rules
+- `urlRegex` / `domainName` / `fileNameRegex` / `fileExtension` / `textRegex` — matching rules
 - `handlerType` — registered handler class name
 - `viewType` — result view to show
-- `handlerConfig` — handler-specific settings (e.g. `pythonScript`, `pythonExe`, `workingDirectory`)
+- `handlerConfig` — handler-specific settings (e.g. `pythonScript`, `pythonExe`, `workingDirectory`, `inputKind`)
 
 For uv-based Python projects, set `pythonExe` to the project’s `.venv\Scripts\python.exe` and `workingDirectory` to the project root. See [DEVELOPMENT.md](DEVELOPMENT.md).
 

@@ -61,7 +61,9 @@ public class AteaInvoiceHandler : IJobHandler
             };
         }
 
-        if (!File.Exists(inputPath))
+        var inputKind = config.GetValueOrDefault("inputKind", "file");
+        var requiresInputFile = !inputKind.Equals("cliArgument", StringComparison.OrdinalIgnoreCase);
+        if (requiresInputFile && !File.Exists(inputPath))
         {
             return new JobResult
             {
