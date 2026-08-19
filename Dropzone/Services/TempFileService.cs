@@ -28,7 +28,7 @@ public class TempFileService
         return Path.Combine(_tempDirectory, fileName);
     }
 
-    public void CleanupFile(string filePath)
+    public static void CleanupFile(string filePath)
     {
         try
         {

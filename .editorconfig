@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+# Designer-generated WinForms code is not hand-edited.
+[*.Designer.cs]
+generated_code = true
+
+# WinForms event handlers follow controlName_EventName (camelCase + underscore).
+# IDE1006 would require PascalCase on each underscore-separated word.
+[{Dropzone/Forms/**.cs,Dropzone/Views/**.cs}]
+dotnet_diagnostic.IDE1006.severity = none
+
+# Test-focused exceptions: xUnit names use underscores; one-off arrays and
+# IDisposable fixtures are normal in tests and not worth production-style noise.
+[Dropzone.Tests/**.cs]
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1816.severity = none
+dotnet_diagnostic.CA1861.severity = none

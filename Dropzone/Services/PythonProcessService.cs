@@ -9,7 +9,7 @@ namespace Dropzone.Services;
 /// </summary>
 public class PythonProcessService
 {
-    public async Task<JobResult> ExecuteScriptAsync(
+    public static async Task<JobResult> ExecuteScriptAsync(
         string pythonExe,
         string scriptPath,
         string inputFilePath,
@@ -43,11 +43,11 @@ public class PythonProcessService
             using var process = System.Diagnostics.Process.Start(processStartInfo);
             if (process == null)
             {
-                throw new Exception("Failed to start Python process");
+                throw new InvalidOperationException("Failed to start Python process");
             }
 
-            var outputTask = process.StandardOutput.ReadToEndAsync();
-            var errorTask = process.StandardError.ReadToEndAsync();
+            var outputTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
+            var errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
 
             await process.WaitForExitAsync(cancellationToken);
 
@@ -56,13 +56,13 @@ public class PythonProcessService
 
             if (process.ExitCode != 0)
             {
-                throw new Exception($"Python script failed with exit code {process.ExitCode}: {error}");
+                throw new InvalidOperationException($"Python script failed with exit code {process.ExitCode}: {error}");
             }
 
             // Try to parse JSON output
             if (string.IsNullOrWhiteSpace(output))
             {
-                throw new Exception("Python script returned no output");
+                throw new InvalidOperationException("Python script returned no output");
             }
 
             return ParseJsonOutput(output);
@@ -87,7 +87,7 @@ public class PythonProcessService
         }
     }
 
-    internal JobResult ParseJsonOutput(string jsonOutput)
+    internal static JobResult ParseJsonOutput(string jsonOutput)
     {
         try
         {

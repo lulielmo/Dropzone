@@ -64,8 +64,6 @@ partial class GridAndCommentView
             new DataGridViewTextBoxColumn { Name = "Netto", HeaderText = "Netto", MinimumWidth = 60 },
             new DataGridViewTextBoxColumn { Name = "GodkantAv", HeaderText = "Godkänt av", MinimumWidth = 80 }
         });
-        dataGridView.CellFormatting += dataGridView_CellFormatting;
-        dataGridView.SelectionChanged += dataGridView_SelectionChanged;
 
         splitContainer.Panel1.Controls.Add(dataGridView);
 

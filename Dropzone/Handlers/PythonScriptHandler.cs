@@ -8,13 +8,6 @@ namespace Dropzone.Handlers;
 /// </summary>
 public class PythonScriptHandler : IJobHandler
 {
-    private readonly PythonProcessService _pythonService;
-
-    public PythonScriptHandler()
-    {
-        _pythonService = new PythonProcessService();
-    }
-
     public async Task<JobResult> ProcessAsync(string inputPath, Dictionary<string, string>? config, CancellationToken cancellationToken = default)
     {
         if (config == null)
@@ -73,7 +66,7 @@ public class PythonScriptHandler : IJobHandler
             };
         }
 
-        return await _pythonService.ExecuteScriptAsync(
+        return await PythonProcessService.ExecuteScriptAsync(
             pythonExe,
             pythonScript,
             inputPath,

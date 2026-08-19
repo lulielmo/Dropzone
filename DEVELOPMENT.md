@@ -237,9 +237,21 @@ Modal UI (job picker, error `MessageBox`) temporarily turns off always-on-top so
 
 ## How to add a new view
 
-1. Create a WinForms `UserControl` under `Dropzone/Views/` that can bind to `JobResult`.
-2. Wire it in `MainForm` (same pattern as `GridAndCommentView`).
-3. Use the new `viewType` from job config.
+1. Create a WinForms `UserControl` under `Dropzone/Views/` that implements `IJobResultView`.
+2. Register the type in `MainForm`’s `_viewTypes` dictionary (key = `viewType` string in config).
+3. Add or extend tests under `Dropzone.Tests/Views/`.
+4. Point one or more jobs at the new `viewType`.
+
+Handler and view registration use the same pattern: a dictionary on `MainForm` keyed by the config type name.
+
+## Code analysis
+
+Rebuild runs the .NET recommended analyzers. Warnings are treated as errors (`TreatWarningsAsErrors` in `Directory.Build.props`). Shared style lives in `.editorconfig`. Designer files are marked `generated_code`.
+
+Agreed exceptions (see `.editorconfig`):
+
+- Tests: **CA1707** (underscores in xUnit names), **CA1816** (`IDisposable` fixtures), **CA1861** (inline arrays in assertions).
+- WinForms Forms/Views: **IDE1006** (designer event handlers use `controlName_EventName`).
 
 ## Solution layout
 
@@ -250,7 +262,7 @@ Dropzone/                 WinForms host
   Handlers/               IJobHandler implementations
   Models/                 JobConfig, JobResult, RowModel
   Services/               Download, temp files, Python process
-  Views/                  Result UI
+  Views/                  IJobResultView + result UI
 Dropzone.Tests/           Unit tests (mirrors production folders)
 ```
 

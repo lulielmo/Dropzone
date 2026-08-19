@@ -8,6 +8,12 @@ namespace Dropzone.Config;
 /// </summary>
 public class ConfigLoader
 {
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip
+    };
+
     private readonly string _configPath;
 
     public ConfigLoader(string? configPath = null)
@@ -27,17 +33,11 @@ public class ConfigLoader
         }
 
         var jsonContent = File.ReadAllText(_configPath);
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip
-        };
+        var config = JsonSerializer.Deserialize<DropzoneConfig>(jsonContent, SerializerOptions);
 
-        var config = JsonSerializer.Deserialize<DropzoneConfig>(jsonContent, options);
-        
         if (config == null)
         {
-            throw new Exception("Failed to deserialize configuration file");
+            throw new InvalidOperationException("Failed to deserialize configuration file");
         }
 
         return config;
@@ -45,7 +45,8 @@ public class ConfigLoader
 
     public JobConfig? FindMatchingJob(string? url, string? filePath, string? text = null)
     {
-        return FindMatchingJobs(url, filePath, text).FirstOrDefault();
+        var jobs = FindMatchingJobs(url, filePath, text);
+        return jobs.Count > 0 ? jobs[0] : null;
     }
 
     /// <summary>

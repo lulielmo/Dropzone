@@ -6,7 +6,7 @@ namespace Dropzone.Views;
 /// <summary>
 /// View displaying script diagnostics (when present), a data grid, and a Medius comment text area.
 /// </summary>
-public partial class GridAndCommentView : UserControl
+public partial class GridAndCommentView : UserControl, IJobResultView
 {
     public GridAndCommentView()
     {
@@ -72,7 +72,7 @@ public partial class GridAndCommentView : UserControl
         return diagnostics;
     }
 
-    private void ShowDiagnostics(IReadOnlyList<DiagnosticMessage> messages)
+    private void ShowDiagnostics(List<DiagnosticMessage> messages)
     {
         diagnosticsListBox.Items.Clear();
 
@@ -184,15 +184,5 @@ public partial class GridAndCommentView : UserControl
         }
 
         Clipboard.SetText(TabSeparatedClipboard.Format(rows));
-    }
-
-    private void dataGridView_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
-    {
-        // Format cells as needed
-    }
-
-    private void dataGridView_SelectionChanged(object? sender, EventArgs e)
-    {
-        // Handle selection changes if needed
     }
 }

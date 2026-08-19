@@ -64,7 +64,7 @@ public class TempFileServiceTests : IDisposable
         File.Exists(tempFile).Should().BeTrue();
 
         // Act
-        _service.CleanupFile(tempFile);
+        TempFileService.CleanupFile(tempFile);
 
         // Assert
         File.Exists(tempFile).Should().BeFalse();
@@ -77,7 +77,7 @@ public class TempFileServiceTests : IDisposable
         var nonExistentFile = Path.Combine(Path.GetTempPath(), "nonexistent_file.txt");
 
         // Act & Assert
-        var act = () => _service.CleanupFile(nonExistentFile);
+        var act = () => TempFileService.CleanupFile(nonExistentFile);
         act.Should().NotThrow();
     }
 
@@ -104,7 +104,7 @@ public class TempFileServiceTests : IDisposable
         File.Exists(newFile).Should().BeTrue();
 
         // Cleanup
-        _service.CleanupFile(newFile);
+        TempFileService.CleanupFile(newFile);
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class TempFileServiceTests : IDisposable
         File.Exists(recentFile).Should().BeTrue();
 
         // Cleanup
-        _service.CleanupFile(recentFile);
+        TempFileService.CleanupFile(recentFile);
     }
 
     public void Dispose()

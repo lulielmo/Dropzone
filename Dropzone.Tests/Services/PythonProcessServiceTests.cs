@@ -14,13 +14,6 @@ namespace Dropzone.Tests.Services;
 /// </summary>
 public class PythonProcessServiceTests
 {
-    private readonly PythonProcessService _service;
-
-    public PythonProcessServiceTests()
-    {
-        _service = new PythonProcessService();
-    }
-
     [Fact]
     public void Constructor_ShouldInitializeSuccessfully()
     {
@@ -40,7 +33,7 @@ public class PythonProcessServiceTests
         var inputPath = "input.pdf";
 
         // Act
-        var result = await _service.ExecuteScriptAsync(pythonExe, scriptPath, inputPath);
+        var result = await PythonProcessService.ExecuteScriptAsync(pythonExe, scriptPath, inputPath);
 
         // Assert
         result.Should().NotBeNull();
@@ -57,7 +50,7 @@ public class PythonProcessServiceTests
         var inputPath = "input.pdf";
 
         // Act
-        var result = await _service.ExecuteScriptAsync(pythonExe, scriptPath, inputPath);
+        var result = await PythonProcessService.ExecuteScriptAsync(pythonExe, scriptPath, inputPath);
 
         // Assert
         result.Should().NotBeNull();
@@ -70,7 +63,7 @@ public class PythonProcessServiceTests
     public async Task ExecuteScriptAsync_WithNonExistentWorkingDirectory_ShouldStillAttemptStart()
     {
         // Arrange — invalid cwd is accepted by ProcessStartInfo; failure appears at start/run time
-        var result = await _service.ExecuteScriptAsync(
+        var result = await PythonProcessService.ExecuteScriptAsync(
             "nonexistent_python.exe",
             "script.py",
             "input.pdf",
@@ -107,7 +100,7 @@ public class PythonProcessServiceTests
 
         try
         {
-            var result = await _service.ExecuteScriptAsync(pythonExe, scriptPath, inputPath);
+            var result = await PythonProcessService.ExecuteScriptAsync(pythonExe, scriptPath, inputPath);
 
             result.Success.Should().BeTrue();
             result.Comment.Should().Contain("Löfgren");
@@ -152,7 +145,7 @@ public class PythonProcessServiceTests
             }
             """;
 
-        var result = _service.ParseJsonOutput(json);
+        var result = PythonProcessService.ParseJsonOutput(json);
 
         result.Success.Should().BeTrue();
         result.Rows.Should().HaveCount(2);
@@ -182,7 +175,7 @@ public class PythonProcessServiceTests
             }
             """;
 
-        var result = _service.ParseJsonOutput(json);
+        var result = PythonProcessService.ParseJsonOutput(json);
 
         result.Success.Should().BeTrue();
         result.Comment.Should().Be("Medius comment");
@@ -211,7 +204,7 @@ public class PythonProcessServiceTests
             }
             """;
 
-        var result = _service.ParseJsonOutput(json);
+        var result = PythonProcessService.ParseJsonOutput(json);
 
         result.Messages.Should().HaveCount(2);
         result.Messages[0].Level.Should().Be(DiagnosticLevel.Warning);
@@ -231,7 +224,7 @@ public class PythonProcessServiceTests
             }
             """;
 
-        var result = _service.ParseJsonOutput(json);
+        var result = PythonProcessService.ParseJsonOutput(json);
 
         result.Messages.Should().ContainSingle()
             .Which.Text.Should().Be("From messages");
@@ -240,7 +233,7 @@ public class PythonProcessServiceTests
     [Fact]
     public void ParseJsonOutput_WithInvalidJson_ShouldReturnErrorDiagnostic()
     {
-        var result = _service.ParseJsonOutput("{ not json");
+        var result = PythonProcessService.ParseJsonOutput("{ not json");
 
         result.Success.Should().BeFalse();
         result.Messages.Should().ContainSingle();
@@ -261,7 +254,7 @@ public class PythonProcessServiceTests
             }
             """;
 
-        var result = _service.ParseJsonOutput(json);
+        var result = PythonProcessService.ParseJsonOutput(json);
 
         result.Rows.Should().HaveCount(1);
         result.Rows[0].ProjKat.Should().Be("5420");

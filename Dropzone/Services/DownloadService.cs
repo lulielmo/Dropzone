@@ -3,14 +3,16 @@ namespace Dropzone.Services;
 /// <summary>
 /// Service for downloading files from URLs
 /// </summary>
-public class DownloadService
+public class DownloadService : IDisposable
 {
     private readonly HttpClient _httpClient;
 
     public DownloadService()
     {
-        _httpClient = new HttpClient();
-        _httpClient.Timeout = TimeSpan.FromMinutes(5);
+        _httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromMinutes(5)
+        };
     }
 
     public async Task<string> DownloadFileAsync(string url, string destinationPath, CancellationToken cancellationToken = default)
@@ -27,13 +29,14 @@ public class DownloadService
         }
         catch (Exception ex)
         {
-            throw new Exception($"Failed to download file from {url}: {ex.Message}", ex);
+            throw new InvalidOperationException($"Failed to download file from {url}: {ex.Message}", ex);
         }
     }
 
     public void Dispose()
     {
-        _httpClient?.Dispose();
+        _httpClient.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
 

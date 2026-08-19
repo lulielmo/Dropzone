@@ -19,49 +19,62 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [x] Always on top while visible; minimize to system tray (restore on double-click / Show)
 - [x] Azure Consumption job via dropped Medius text (`AZURECONS` + period → `YYYYMM`)
 - [x] Rename `AteaInvoiceHandler` → `PythonScriptHandler`; result title/type from job `name`
+- [x] Enable .NET recommended analyzers on rebuild (warnings as errors); remove `Form1`; register views like handlers
 
 ## Next up (priority order)
 
-### 1. Window behavior (optional follow-ups)
+While we are in active feature development (many F5 / restart / drop cycles), prefer work that is cheapest before the codebase grows, or that makes testing easier. Defer daily-driver install behaviour and anything that adds extra clicks on every restart.
 
-- [ ] Optional: global **hotkey** to show/hide from tray
-- [ ] Optional: start with Windows / single-instance guard
+### 1. Compact idle window (helps development and daily use)
 
-### 2. Code quality / hygiene (good “waiting for invoice” work)
-
-- [ ] Enable Visual Studio / .NET **code analysis** on rebuild (e.g. analyzers + `.editorconfig`, treat warnings as agreed)
-- [ ] Remove leftover `Form1` scaffolding if unused
-- [ ] Prefer dependency injection for services used by handlers (`PythonProcessService`, etc.) to improve testability
-- [ ] Confirm view registration pattern matches handler registration (document any gaps)
-
-### 3. Idle UX polish
+Always-on-top idle at 800×500 covers IDE/Medius during testing. Compact idle reduces that without extra clicks.
 
 - [ ] **Window size per state** (idle compact, result large)
   - [ ] v1: fixed sizes — idle/drop target much smaller than today; result (and maybe processing→result) uses the current ~1000×700; **Done** shrinks back to idle. Lower `MinimumSize` (today 800×500) so idle can be compact
-  - [ ] Later: remember last user-resized size per state (defaults = the v1 sizes)
   - Keep a stable corner when growing/shrinking so the drop target does not jump
   - Processing can stay at idle size until a result is shown
-- [ ] **Idle concealment** (pick one; idle only — never while a result is shown; do not hide/move during an active drag-and-drop onto Dropzone)
-  - [ ] Option A — **Edge dock / auto-hide** (ICQ-style): user docks the compact idle window to a screen edge; when the pointer is away it slides mostly off-screen (leave a thin peek); when the pointer nears the peek it slides back in. Delay + hysteresis so it does not flicker
-  - [ ] Option B — **Mouse dodge**: when the pointer approaches, move the window aside so it does not obscure content underneath
-  - Compact idle size (above) makes either option much more usable; prefer A if we only implement one
-- [ ] Clarify idle / processing / result states in the main window
-- [ ] Improve “no matching job” feedback for dropped URLs/files
-- [ ] Detect HTML / login-page download (auth missing) and show a clear message instead of letting Python fail on a non-PDF
-- [ ] Reject or warn early when the input file is not a usable PDF (before calling the script)
-- [ ] Optional: visible **Copy comment** button (textarea copy already works)
+  - Later: remember last user-resized size per state (defaults = the v1 sizes)
 
-### 4. Configuration UI
+### 2. Configuration: open the JSON (small development help)
 
-- [ ] Implement **Configuration** menu: start simple (open/`reveal` `dropzone.config.json`, reload config) before a full editor
+Config is already re-read on each drop (`ConfigLoader.Load`). A menu that reveals the file avoids hunting for it. A full editor can wait.
+
+- [ ] **Configuration** menu: open/`reveal` `dropzone.config.json` (reload is already per drop)
 - [ ] Later: graphical UI on top of `dropzone.config.json` (view/edit jobs, paths, matchers)
 - [ ] Validate config on load and surface errors in the UI
 
-### 5. Smarter routing / more jobs
+### 3. Clearer drop failures (when testing real invoices)
+
+Saves time on bad inputs; not needed for every UX restart.
+
+- [ ] Improve “no matching job” feedback for dropped URLs/files
+- [ ] Detect HTML / login-page download (auth missing) and show a clear message instead of letting Python fail on a non-PDF
+- [ ] Reject or warn early when the input file is not a usable PDF (before calling the script)
+
+### 4. Idle concealment (after compact idle feels good)
+
+Useful in daily use. Auto-hide can add friction while drop-testing (find the peek, wait for slide-in). Idle only — never while a result is shown; do not hide/move during an active drag-and-drop onto Dropzone.
+
+- [ ] Option A — **Edge dock / auto-hide** (ICQ-style): user docks the compact idle window to a screen edge; when the pointer is away it slides mostly off-screen (leave a thin peek); when the pointer nears the peek it slides back in. Delay + hysteresis so it does not flicker
+- [ ] Option B — **Mouse dodge**: when the pointer approaches, move the window aside so it does not obscure content underneath
+- Compact idle size (above) makes either option much more usable; prefer A if we only implement one
+- [ ] Clarify idle / processing / result states in the main window
+- [ ] Optional: visible **Copy comment** button (textarea copy already works)
+
+### 5. Daily-driver window behaviour (wait until Dropzone sits in the tray all day)
+
+Do **not** enable these during the F5-heavy phase.
+
+- [ ] Optional: global **hotkey** to show/hide from tray
+- [ ] **Single-instance** guard — fights “start a new build while the old one is still in the tray”
+- [ ] **Start with Windows** — easy to launch a stale copy while iterating; better once there is a stable daily build
+
+### 6. Smarter routing / more jobs (when a new case appears)
 
 - [ ] Optional content-based job suggestion (keywords / PDF text) before or instead of manual choice
 - [ ] Additional view type when a new result shape appears
 - [ ] Additional handler only when execution strategy diverges from “single file → Python script”
+- [ ] Prefer dependency injection for services used by handlers (`PythonProcessService`, etc.) to improve testability
 
 ## Testing
 

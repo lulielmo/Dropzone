@@ -12,7 +12,8 @@ public partial class MainForm : Form
     private readonly DownloadService _downloadService;
     private readonly TempFileService _tempFileService;
     private readonly Dictionary<string, Type> _handlerTypes;
-    private readonly List<string> _ownedTempFiles = new();
+    private readonly Dictionary<string, Type> _viewTypes;
+    private readonly List<string> _ownedTempFiles = [];
     private UserControl? _currentView;
     private bool _isInTray;
     private bool _isExiting;
@@ -26,10 +27,14 @@ public partial class MainForm : Form
         _downloadService = new DownloadService();
         _tempFileService = new TempFileService();
         
-        // Register handler types
+        // Register handler and view types (config handlerType / viewType keys)
         _handlerTypes = new Dictionary<string, Type>
         {
             { "PythonScriptHandler", typeof(PythonScriptHandler) }
+        };
+        _viewTypes = new Dictionary<string, Type>
+        {
+            { "GridAndCommentView", typeof(GridAndCommentView) }
         };
 
         // Setup drag and drop
@@ -65,8 +70,7 @@ public partial class MainForm : Form
 
         if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            var files = e.Data.GetData(DataFormats.FileDrop) as string[];
-            if (files != null && files.Length > 0)
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
             {
                 filePath = files[0];
             }
@@ -151,13 +155,12 @@ public partial class MainForm : Form
             // Create handler instance
             if (!_handlerTypes.TryGetValue(jobConfig.HandlerType, out var handlerType))
             {
-                throw new Exception($"Unknown handler type: {jobConfig.HandlerType}");
+                throw new InvalidOperationException($"Unknown handler type: {jobConfig.HandlerType}");
             }
 
-            var handler = Activator.CreateInstance(handlerType) as IJobHandler;
-            if (handler == null)
+            if (Activator.CreateInstance(handlerType) is not IJobHandler handler)
             {
-                throw new Exception($"Failed to create handler: {jobConfig.HandlerType}");
+                throw new InvalidOperationException($"Failed to create handler: {jobConfig.HandlerType}");
             }
 
             // Process with handler
@@ -245,28 +248,24 @@ public partial class MainForm : Form
     {
         ClearContent();
 
-        switch (viewType)
+        if (!_viewTypes.TryGetValue(viewType, out var registeredViewType)
+            || Activator.CreateInstance(registeredViewType) is not UserControl view
+            || view is not IJobResultView resultView)
         {
-            case "GridAndCommentView":
-                _currentView = new GridAndCommentView();
-                ((GridAndCommentView)_currentView).SetData(result);
-                break;
-            default:
-                var errorLabel = new Label
-                {
-                    Text = $"Unknown view type: {viewType}",
-                    Dock = DockStyle.Fill
-                };
-                contentPanel.Controls.Add(errorLabel);
-                SetDoneEnabled(true);
-                return;
+            var errorLabel = new Label
+            {
+                Text = $"Unknown view type: {viewType}",
+                Dock = DockStyle.Fill
+            };
+            contentPanel.Controls.Add(errorLabel);
+            SetDoneEnabled(true);
+            return;
         }
 
-        if (_currentView != null)
-        {
-            _currentView.Dock = DockStyle.Fill;
-            contentPanel.Controls.Add(_currentView);
-        }
+        resultView.SetData(result);
+        view.Dock = DockStyle.Fill;
+        contentPanel.Controls.Add(view);
+        _currentView = view;
 
         configurationLinkLabel.Enabled = true;
         SetDoneEnabled(true);
@@ -311,7 +310,7 @@ public partial class MainForm : Form
     {
         foreach (var path in _ownedTempFiles)
         {
-            _tempFileService.CleanupFile(path);
+            TempFileService.CleanupFile(path);
         }
 
         _ownedTempFiles.Clear();
