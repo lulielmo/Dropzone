@@ -8,6 +8,11 @@ namespace Dropzone.Forms;
 
 public partial class MainForm : Form
 {
+    internal static readonly Size IdleClientSize = new(320, 180);
+    internal static readonly Size ResultClientSize = new(1000, 700);
+    internal static readonly Size IdleMinimumSize = new(260, 140);
+    internal static readonly Size ResultMinimumSize = new(800, 500);
+
     private readonly ConfigLoader _configLoader;
     private readonly DownloadService _downloadService;
     private readonly TempFileService _tempFileService;
@@ -215,7 +220,7 @@ public partial class MainForm : Form
             Text = "Dropzone\n\nSläpp något här",
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 14F, FontStyle.Regular),
+            Font = new Font("Segoe UI", 11F, FontStyle.Regular),
             ForeColor = Color.Gray
         };
 
@@ -223,6 +228,7 @@ public partial class MainForm : Form
 
         configurationLinkLabel.Enabled = true;
         SetDoneEnabled(false);
+        ApplyHostClientSize(IdleClientSize, IdleMinimumSize);
     }
 
     internal void ShowProcessingView()
@@ -242,6 +248,7 @@ public partial class MainForm : Form
         contentPanel.Controls.Add(processingLabel);
 
         SetDoneEnabled(false);
+        ApplyHostClientSize(IdleClientSize, IdleMinimumSize);
     }
 
     internal void ShowResultView(string viewType, JobResult result)
@@ -259,6 +266,7 @@ public partial class MainForm : Form
             };
             contentPanel.Controls.Add(errorLabel);
             SetDoneEnabled(true);
+            ApplyHostClientSize(ResultClientSize, ResultMinimumSize);
             return;
         }
 
@@ -269,6 +277,7 @@ public partial class MainForm : Form
 
         configurationLinkLabel.Enabled = true;
         SetDoneEnabled(true);
+        ApplyHostClientSize(ResultClientSize, ResultMinimumSize);
     }
 
     private void SwitchToConfigurationView()
@@ -287,6 +296,33 @@ public partial class MainForm : Form
     internal void CompleteJobAndReturnToIdle()
     {
         ShowIdleView();
+    }
+
+    /// <summary>
+    /// Resizes the host and keeps the top-right corner stable so the title bar, Done, and caption buttons stay on screen.
+    /// </summary>
+    private void ApplyHostClientSize(Size clientSize, Size minimumSize)
+    {
+        if (ClientSize == clientSize && MinimumSize == minimumSize)
+        {
+            return;
+        }
+
+        var topRight = new Point(Right, Top);
+        MinimumSize = Size.Empty;
+        ClientSize = clientSize;
+        MinimumSize = minimumSize;
+        Location = ClampToWorkingArea(new Point(topRight.X - Width, topRight.Y));
+    }
+
+    private Point ClampToWorkingArea(Point location)
+    {
+        var workingArea = Screen.FromControl(this).WorkingArea;
+        var maxX = Math.Max(workingArea.Left, workingArea.Right - Width);
+        var maxY = Math.Max(workingArea.Top, workingArea.Bottom - Height);
+        return new Point(
+            Math.Clamp(location.X, workingArea.Left, maxX),
+            Math.Clamp(location.Y, workingArea.Top, maxY));
     }
 
     private void SetDoneEnabled(bool enabled)

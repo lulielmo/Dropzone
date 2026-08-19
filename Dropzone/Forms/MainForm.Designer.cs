@@ -94,10 +94,10 @@ partial class MainForm
         // MainForm
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(1000, 700);
+        ClientSize = new Size(320, 180);
         Controls.Add(contentPanel);
         Controls.Add(navigationPanel);
-        MinimumSize = new Size(800, 500);
+        MinimumSize = new Size(260, 140);
         Name = "MainForm";
         Text = "Dropzone";
         StartPosition = FormStartPosition.CenterScreen;

@@ -222,6 +222,8 @@ The main window has three content states:
 
 **Done** is an action, not a tab. Clicking it disposes the result view, deletes Dropzone-owned temp files (URL downloads under `%LocalAppData%\Dropzone\temp`), restores idle, and disables itself. Files the user dropped from disk are not deleted. Starting a new drop, or closing the window, also cleans owned temps. Files older than 24 hours in the temp folder are removed on close.
 
+Idle and processing use a compact host size (~320×180). Showing a result grows to ~1000×700; **Done** (and a new processing cycle) shrinks back. The top-right corner stays put so the title bar, **Done**, and caption buttons remain on screen. Remembering last user-resized size per state is a later enhancement.
+
 ## Window behavior
 
 While Dropzone is visible it stays **always on top** so it remains available next to Medius. Minimizing hides the window to the system tray (including the hidden-icons overflow). Double-click the tray icon, or choose **Show**, to restore it on top. **Exit** on the tray menu (or the window Close button) quits the app and runs temp-file cleanup.
