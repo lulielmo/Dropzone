@@ -6,6 +6,16 @@ namespace Dropzone.Tests.Forms;
 public class MainFormWindowBehaviorTests
 {
     [Fact]
+    public void CreateOpenConfigProcessStartInfo_ShouldOpenFileWithShellExecute()
+    {
+        var path = @"C:\Dropzone\Config\dropzone.config.json";
+        var info = MainForm.CreateOpenConfigProcessStartInfo(path);
+
+        info.FileName.Should().Be(path);
+        info.UseShellExecute.Should().BeTrue();
+    }
+
+    [Fact]
     public void Constructor_ShouldBeAlwaysOnTop()
     {
         RunSta(() =>

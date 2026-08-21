@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Dropzone.Config;
 using Dropzone.Handlers;
 using Dropzone.Models;
@@ -280,14 +281,38 @@ public partial class MainForm : Form
         ApplyHostClientSize(ResultClientSize, ResultMinimumSize);
     }
 
-    private void SwitchToConfigurationView()
+    private void OpenConfiguration()
     {
-        configurationLinkLabel.Font = new Font(configurationLinkLabel.Font, FontStyle.Underline);
-        doneLinkLabel.Font = new Font(doneLinkLabel.Font, FontStyle.Regular);
+        var path = _configLoader.ConfigPath;
+        if (!File.Exists(path))
+        {
+            ShowOwnedMessage(
+                $"Configuration file not found:\n{path}",
+                "Dropzone",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+            return;
+        }
 
-        // TODO: Show configuration view
-        ShowIdleView();
+        try
+        {
+            using var process = Process.Start(CreateOpenConfigProcessStartInfo(path));
+        }
+        catch (Exception ex)
+        {
+            ShowOwnedMessage(
+                $"Could not open configuration file:\n{path}\n\n{ex.Message}",
+                "Dropzone",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
     }
+
+    internal static ProcessStartInfo CreateOpenConfigProcessStartInfo(string filePath) => new()
+    {
+        FileName = filePath,
+        UseShellExecute = true
+    };
 
     /// <summary>
     /// Clears the current result, deletes Dropzone-owned temp files, and restores the idle prompt.
@@ -366,7 +391,7 @@ public partial class MainForm : Form
 
     private void configurationLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
-        SwitchToConfigurationView();
+        OpenConfiguration();
     }
 
     private void doneLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

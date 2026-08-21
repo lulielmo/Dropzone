@@ -53,7 +53,7 @@ dotnet run --project Dropzone
 
 ## Configuration
 
-Jobs live in `Dropzone/Config/dropzone.config.json` (copied to the output directory on build).
+Jobs live in `Dropzone/Config/dropzone.config.json` (copied to the output directory on build). Click **Configuration** in the app to open the file the running instance loads — the project file when you F5 from this repo, otherwise the output copy. The next drop re-reads it; no restart needed.
 
 Each job can define:
 

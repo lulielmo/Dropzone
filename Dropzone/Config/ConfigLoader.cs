@@ -16,13 +16,29 @@ public class ConfigLoader
 
     private readonly string _configPath;
 
+    public string ConfigPath => _configPath;
+
     public ConfigLoader(string? configPath = null)
     {
-        _configPath = configPath ?? Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "Config",
-            "dropzone.config.json"
-        );
+        _configPath = configPath ?? ResolveDefaultConfigPath(AppDomain.CurrentDomain.BaseDirectory);
+    }
+
+    /// <summary>
+    /// Prefers <c>Config/dropzone.config.json</c> next to <c>Dropzone.csproj</c> when running from a build output folder.
+    /// Otherwise uses the copy under the application base directory.
+    /// </summary>
+    internal static string ResolveDefaultConfigPath(string baseDirectory)
+    {
+        var outputPath = Path.Combine(baseDirectory, "Config", "dropzone.config.json");
+        var projectDirectory = Path.GetFullPath(Path.Combine(baseDirectory, "..", "..", ".."));
+        var projectFile = Path.Combine(projectDirectory, "Dropzone.csproj");
+        var projectConfig = Path.Combine(projectDirectory, "Config", "dropzone.config.json");
+        if (File.Exists(projectFile) && File.Exists(projectConfig))
+        {
+            return projectConfig;
+        }
+
+        return outputPath;
     }
 
     public DropzoneConfig Load()

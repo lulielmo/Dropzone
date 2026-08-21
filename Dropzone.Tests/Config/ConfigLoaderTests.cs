@@ -335,6 +335,38 @@ public class ConfigLoaderTests : IDisposable
         config.Jobs[0].HandlerConfig!["pythonExe"].Should().Be("python");
     }
 
+    [Fact]
+    public void ConfigPath_WithExplicitPath_ShouldReturnThatPath()
+    {
+        var loader = new ConfigLoader(_testConfigPath);
+        loader.ConfigPath.Should().Be(_testConfigPath);
+    }
+
+    [Fact]
+    public void ResolveDefaultConfigPath_WhenProjectConfigExists_ShouldPreferIt()
+    {
+        var projectDir = Path.Combine(_testConfigDirectory, "Dropzone");
+        var outputDir = Path.Combine(projectDir, "bin", "Debug", "net9.0-windows");
+        Directory.CreateDirectory(Path.Combine(projectDir, "Config"));
+        Directory.CreateDirectory(Path.Combine(outputDir, "Config"));
+        File.WriteAllText(Path.Combine(projectDir, "Dropzone.csproj"), "<Project />");
+        var projectConfig = Path.Combine(projectDir, "Config", "dropzone.config.json");
+        File.WriteAllText(projectConfig, "{}");
+        File.WriteAllText(Path.Combine(outputDir, "Config", "dropzone.config.json"), "{}");
+
+        ConfigLoader.ResolveDefaultConfigPath(outputDir).Should().Be(Path.GetFullPath(projectConfig));
+    }
+
+    [Fact]
+    public void ResolveDefaultConfigPath_WhenNotInProjectBuild_ShouldUseOutputCopy()
+    {
+        var outputDir = Path.Combine(_testConfigDirectory, "published");
+        Directory.CreateDirectory(Path.Combine(outputDir, "Config"));
+        var outputConfig = Path.Combine(outputDir, "Config", "dropzone.config.json");
+
+        ConfigLoader.ResolveDefaultConfigPath(outputDir).Should().Be(outputConfig);
+    }
+
     public void Dispose()
     {
         try

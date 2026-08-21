@@ -230,6 +230,8 @@ While Dropzone is visible it stays **always on top** so it remains available nex
 
 Modal UI (job picker, error `MessageBox`) temporarily turns off always-on-top so the dialog is not hidden behind the main window.
 
+**Configuration** opens the JSON file the host loads (the project `Config/dropzone.config.json` when running from this repo’s build output; otherwise the copy next to the exe). The next drop re-reads it.
+
 ## How to add a new handler
 
 1. Implement `IJobHandler` in `Dropzone/Handlers/`.
