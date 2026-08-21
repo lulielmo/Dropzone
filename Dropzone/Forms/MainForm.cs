@@ -116,8 +116,11 @@ public partial class MainForm : Form
             var matchingJobs = _configLoader.FindMatchingJobs(url, filePath, droppedText);
             if (matchingJobs.Count == 0)
             {
-                ShowOwnedMessage($"No handler found for this input.\nURL: {url}\nFile: {filePath}\nText: {Truncate(droppedText, 120)}",
-                    "Dropzone", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ShowOwnedMessage(
+                    DropInputFeedback.NoMatchingJob(url, filePath, droppedText),
+                    "Dropzone",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
                 ShowIdleView();
                 return;
             }
@@ -158,6 +161,17 @@ public partial class MainForm : Form
                 inputPath = filePath ?? string.Empty;
             }
 
+            if (!inputKind.Equals("cliArgument", StringComparison.OrdinalIgnoreCase))
+            {
+                var unusable = InputFileInspector.DescribeIfNotUsablePdf(inputPath);
+                if (unusable != null)
+                {
+                    ShowOwnedMessage(unusable, "Dropzone", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ShowIdleView();
+                    return;
+                }
+            }
+
             // Create handler instance
             if (!_handlerTypes.TryGetValue(jobConfig.HandlerType, out var handlerType))
             {
@@ -182,17 +196,6 @@ public partial class MainForm : Form
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             ShowIdleView();
         }
-    }
-
-    private static string Truncate(string? value, int maxLength)
-    {
-        if (string.IsNullOrEmpty(value))
-            return string.Empty;
-
-        var normalized = value.ReplaceLineEndings(" ");
-        return normalized.Length <= maxLength
-            ? normalized
-            : normalized[..maxLength] + "…";
     }
 
     /// <summary>

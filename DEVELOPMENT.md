@@ -232,6 +232,8 @@ Modal UI (job picker, error `MessageBox`) temporarily turns off always-on-top so
 
 **Configuration** opens the JSON file the host loads (the project `Config/dropzone.config.json` when running from this repo’s build output; otherwise the copy next to the exe). The next drop re-reads it.
 
+File jobs are checked before the Python script runs: the input must look like a PDF (`%PDF`). HTML (often a Medius login page after a URL drop) is rejected with a clear message. When nothing matches, the message names the drop and hints at file vs URL vs `AZURECONS` text.
+
 ## How to add a new handler
 
 1. Implement `IJobHandler` in `Dropzone/Handlers/`.

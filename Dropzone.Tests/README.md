@@ -7,7 +7,7 @@ This directory contains unit tests for the Dropzone application.
 The test project mirrors the structure of the main Dropzone project:
 
 - `Models/` - Tests for model classes (RowModel, JobConfig, JobResult)
-- `Services/` - Tests for service classes (DownloadService, TempFileService, PythonProcessService, BillingPeriodParser)
+- `Services/` - Tests for service classes (DownloadService, TempFileService, PythonProcessService, BillingPeriodParser, drop/PDF feedback)
 - `Forms/` - Tests for main window behaviour (Done action, idle reset, tray / always-on-top, compact idle size)
 - `Views/` - Tests for result views (GridAndCommentView diagnostics)
 - `Handlers/` - Tests for handler classes (PythonScriptHandler)

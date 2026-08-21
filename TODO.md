@@ -22,20 +22,13 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [x] Enable .NET recommended analyzers on rebuild (warnings as errors); remove `Form1`; register views like handlers
 - [x] Compact idle/processing window; result grows to ~1000×700 with a stable top-right corner
 - [x] **Configuration** opens the JSON the running app loads (project file when F5 from this repo)
+- [x] Clearer drop failures: no-match wording, HTML/login page, reject non-PDF before the script
 
 ## Next up (priority order)
 
 While we are in active feature development (many F5 / restart / drop cycles), prefer work that is cheapest before the codebase grows, or that makes testing easier. Defer daily-driver install behaviour and anything that adds extra clicks on every restart.
 
-### 1. Clearer drop failures (when testing real invoices)
-
-Saves time on bad inputs; not needed for every UX restart.
-
-- [ ] Improve “no matching job” feedback for dropped URLs/files
-- [ ] Detect HTML / login-page download (auth missing) and show a clear message instead of letting Python fail on a non-PDF
-- [ ] Reject or warn early when the input file is not a usable PDF (before calling the script)
-
-### 2. Idle concealment (after compact idle feels good)
+### 1. Idle concealment (after compact idle feels good)
 
 Useful in daily use. Auto-hide can add friction while drop-testing (find the peek, wait for slide-in). Idle only — never while a result is shown; do not hide/move during an active drag-and-drop onto Dropzone.
 
@@ -45,7 +38,7 @@ Useful in daily use. Auto-hide can add friction while drop-testing (find the pee
 - [ ] Clarify idle / processing / result states in the main window
 - [ ] Optional: visible **Copy comment** button (textarea copy already works)
 
-### 3. Daily-driver window behaviour (wait until Dropzone sits in the tray all day)
+### 2. Daily-driver window behaviour (wait until Dropzone sits in the tray all day)
 
 Do **not** enable these during the F5-heavy phase.
 
@@ -53,7 +46,7 @@ Do **not** enable these during the F5-heavy phase.
 - [ ] **Single-instance** guard — fights “start a new build while the old one is still in the tray”
 - [ ] **Start with Windows** — easy to launch a stale copy while iterating; better once there is a stable daily build
 
-### 4. Smarter routing / more jobs (when a new case appears)
+### 3. Smarter routing / more jobs (when a new case appears)
 
 - [ ] Optional content-based job suggestion (keywords / PDF text) before or instead of manual choice
 - [ ] Additional view type when a new result shape appears
