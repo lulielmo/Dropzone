@@ -99,6 +99,106 @@ public class GridAndCommentViewTests
         });
     }
 
+    [Fact]
+    public void SetData_WithComment_ShouldEnableCopyComment()
+    {
+        RunSta(() =>
+        {
+            using var view = new GridAndCommentView();
+            view.SetData(new JobResult
+            {
+                Success = true,
+                Comment = "Medius comment\nline 2"
+            });
+
+            view.IsCopyCommentEnabled.Should().BeTrue();
+            view.CommentText.Should().Contain("Medius comment");
+        });
+    }
+
+    [Fact]
+    public void SetData_WithoutComment_ShouldDisableCopyComment()
+    {
+        RunSta(() =>
+        {
+            using var view = new GridAndCommentView();
+            view.SetData(new JobResult { Success = true, Comment = "  " });
+
+            view.IsCopyCommentEnabled.Should().BeFalse();
+        });
+    }
+
+    [Fact]
+    public void CopyCommentToClipboard_ShouldCopyNormalizedComment()
+    {
+        RunSta(() =>
+        {
+            using var view = new GridAndCommentView();
+            view.SetData(new JobResult
+            {
+                Success = true,
+                Comment = "Line 1\nLine 2"
+            });
+
+            view.CopyCommentToClipboard();
+
+            Clipboard.GetText().Should().Be("Line 1\r\nLine 2");
+        });
+    }
+
+    [Fact]
+    public void SetData_WithRows_ShouldEnableCopyGrid()
+    {
+        RunSta(() =>
+        {
+            using var view = new GridAndCommentView();
+            view.SetData(new JobResult
+            {
+                Success = true,
+                Rows = [new RowModel { KonProj = "5420", RG = "10200", Aktivitet = "738" }]
+            });
+
+            view.IsCopyGridEnabled.Should().BeTrue();
+        });
+    }
+
+    [Fact]
+    public void SetData_WithoutRows_ShouldDisableCopyGrid()
+    {
+        RunSta(() =>
+        {
+            using var view = new GridAndCommentView();
+            view.SetData(new JobResult { Success = true });
+
+            view.IsCopyGridEnabled.Should().BeFalse();
+        });
+    }
+
+    [Fact]
+    public void CopyGridToClipboard_ShouldCopyAllRowsWithoutSelection()
+    {
+        RunSta(() =>
+        {
+            using var view = new GridAndCommentView();
+            view.SetData(new JobResult
+            {
+                Success = true,
+                Rows =
+                [
+                    new RowModel { KonProj = "5420", RG = "10200", Aktivitet = "738", Netto = "144,21", GodkantAv = "John Munthe" },
+                    new RowModel { KonProj = "P.20257601", Aktivitet = "738", ProjKat = "5420", Netto = "7097,97", GodkantAv = "John Munthe" }
+                ]
+            });
+            view.ClearGridSelection();
+
+            view.CopyGridToClipboard();
+
+            Clipboard.GetText().Should().Be(
+                "5420\t\t10200\t738\t\t\t\t\t144,21\tJohn Munthe\r\n" +
+                "P.20257601\t\t\t738\t\t\t5420\t\t7097,97\tJohn Munthe\r\n");
+        });
+    }
+
     private static void RunSta(Action action)
     {
         Exception? caught = null;

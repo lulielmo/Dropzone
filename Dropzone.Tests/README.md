@@ -9,7 +9,7 @@ The test project mirrors the structure of the main Dropzone project:
 - `Models/` - Tests for model classes (RowModel, JobConfig, JobResult)
 - `Services/` - Tests for service classes (DownloadService, TempFileService, PythonProcessService, BillingPeriodParser, drop/PDF feedback)
 - `Forms/` - Tests for main window behaviour (Done action, idle reset, tray / always-on-top, compact idle size)
-- `Views/` - Tests for result views (GridAndCommentView diagnostics)
+- `Views/` - Tests for result views (GridAndCommentView diagnostics, copy comment/grid)
 - `Handlers/` - Tests for handler classes (PythonScriptHandler)
 - `Config/` - Tests for configuration loading (ConfigLoader)
 

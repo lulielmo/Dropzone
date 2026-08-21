@@ -37,6 +37,8 @@ public partial class GridAndCommentView : UserControl, IJobResultView
 
         // WinForms TextBox needs CRLF; JSON/Python comments typically use LF only.
         commentTextBox.Text = NormalizeNewLines(result.Comment);
+        copyCommentButton.Enabled = !string.IsNullOrWhiteSpace(commentTextBox.Text);
+        copyGridButton.Enabled = dataGridView.Rows.Count > 0;
 
         ShowDiagnostics(GetDisplayDiagnostics(result));
 
@@ -45,6 +47,47 @@ public partial class GridAndCommentView : UserControl, IJobResultView
             dataGridView.Focus();
             dataGridView.SelectAll();
         }
+    }
+
+    internal bool IsCopyGridEnabled => copyGridButton.Enabled;
+
+    internal bool IsCopyCommentEnabled => copyCommentButton.Enabled;
+
+    internal string CommentText => commentTextBox.Text;
+
+    internal void CopyGridToClipboard()
+    {
+        if (dataGridView.Rows.Count == 0 || dataGridView.Columns.Count == 0)
+        {
+            return;
+        }
+
+        CopyCellsAsExcelTsv(0, dataGridView.Rows.Count - 1, 0, dataGridView.Columns.Count - 1);
+    }
+
+    internal void ClearGridSelection()
+    {
+        dataGridView.ClearSelection();
+    }
+
+    private void copyGridButton_Click(object? sender, EventArgs e)
+    {
+        CopyGridToClipboard();
+    }
+
+    internal void CopyCommentToClipboard()
+    {
+        if (string.IsNullOrEmpty(commentTextBox.Text))
+        {
+            return;
+        }
+
+        Clipboard.SetText(commentTextBox.Text);
+    }
+
+    private void copyCommentButton_Click(object? sender, EventArgs e)
+    {
+        CopyCommentToClipboard();
     }
 
     internal bool DiagnosticsVisible => diagnosticsPanel.Visible;
@@ -172,6 +215,11 @@ public partial class GridAndCommentView : UserControl, IJobResultView
         var minCol = selectedCells.Min(c => c.ColumnIndex);
         var maxCol = selectedCells.Max(c => c.ColumnIndex);
 
+        CopyCellsAsExcelTsv(minRow, maxRow, minCol, maxCol);
+    }
+
+    private void CopyCellsAsExcelTsv(int minRow, int maxRow, int minCol, int maxCol)
+    {
         var rows = new List<IReadOnlyList<string?>>();
         for (var r = minRow; r <= maxRow; r++)
         {
@@ -183,6 +231,12 @@ public partial class GridAndCommentView : UserControl, IJobResultView
             rows.Add(cells);
         }
 
-        Clipboard.SetText(TabSeparatedClipboard.Format(rows));
+        var text = TabSeparatedClipboard.Format(rows);
+        if (string.IsNullOrEmpty(text))
+        {
+            return;
+        }
+
+        Clipboard.SetText(text);
     }
 }

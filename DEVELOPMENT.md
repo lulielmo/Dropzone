@@ -206,6 +206,10 @@ Emit `messages` only in Dropzone / CLI JSON mode (stdout). Interactive console r
 
 Paste into Medius (or Excel) should behave like copying the corresponding range from a spreadsheet.
 
+**Copy comment** copies the Medius comment textarea (CRLF) to the clipboard. The button is enabled only when the comment is non-empty. Selecting the textarea and using Ctrl+C still works.
+
+**Copy grid** copies every data cell as the same Excel-like TSV, without requiring a selection. Ctrl+A / Ctrl+C on a selected range still copies only that range.
+
 ### Multiple matching jobs
 
 If more than one job matches the same URL or file, Dropzone shows a selection dialog and the user picks which job to run. A single match runs immediately. Zero matches shows the existing “no handler” message.

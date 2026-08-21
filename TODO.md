@@ -23,6 +23,7 @@ Suggested implementation order for upcoming work is under **Next up (priority or
 - [x] Compact idle/processing window; result grows to ~1000×700 with a stable top-right corner
 - [x] **Configuration** opens the JSON the running app loads (project file when F5 from this repo)
 - [x] Clearer drop failures: no-match wording, HTML/login page, reject non-PDF before the script
+- [x] **Copy comment** and **Copy grid** buttons on the result view (textarea/grid Ctrl+C still work)
 
 ## Next up (priority order)
 
@@ -36,7 +37,6 @@ Useful in daily use. Auto-hide can add friction while drop-testing (find the pee
 - [ ] Option B — **Mouse dodge**: when the pointer approaches, move the window aside so it does not obscure content underneath
 - Compact idle size (above) makes either option much more usable; prefer A if we only implement one
 - [ ] Clarify idle / processing / result states in the main window
-- [ ] Optional: visible **Copy comment** button (textarea copy already works)
 
 ### 2. Daily-driver window behaviour (wait until Dropzone sits in the tray all day)
 

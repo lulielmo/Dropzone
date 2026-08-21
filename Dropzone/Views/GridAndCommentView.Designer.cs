@@ -4,7 +4,11 @@ partial class GridAndCommentView
 {
     private System.ComponentModel.IContainer components = null!;
     private DataGridView dataGridView;
+    private Button copyGridButton;
+    private Panel gridBar;
     private TextBox commentTextBox;
+    private Button copyCommentButton;
+    private Panel commentBar;
     private SplitContainer splitContainer;
     private Panel diagnosticsPanel;
     private ListBox diagnosticsListBox;
@@ -22,7 +26,11 @@ partial class GridAndCommentView
     {
         splitContainer = new SplitContainer();
         dataGridView = new DataGridView();
+        copyGridButton = new Button();
+        gridBar = new Panel();
         commentTextBox = new TextBox();
+        copyCommentButton = new Button();
+        commentBar = new Panel();
         diagnosticsPanel = new Panel();
         diagnosticsListBox = new ListBox();
         ((System.ComponentModel.ISupportInitialize)splitContainer).BeginInit();
@@ -65,9 +73,38 @@ partial class GridAndCommentView
             new DataGridViewTextBoxColumn { Name = "GodkantAv", HeaderText = "Godkänt av", MinimumWidth = 80 }
         });
 
-        splitContainer.Panel1.Controls.Add(dataGridView);
+        copyGridButton.AutoSize = true;
+        copyGridButton.Enabled = false;
+        copyGridButton.Name = "copyGridButton";
+        copyGridButton.Text = "Copy grid";
+        copyGridButton.UseVisualStyleBackColor = true;
+        copyGridButton.Click += copyGridButton_Click;
+        copyGridButton.Location = new Point(0, 2);
 
-        // Comment TextBox (bottom panel)
+        gridBar.Dock = DockStyle.Top;
+        gridBar.Height = 32;
+        gridBar.Name = "gridBar";
+        gridBar.Padding = new Padding(0, 2, 0, 2);
+        gridBar.Controls.Add(copyGridButton);
+
+        splitContainer.Panel1.Controls.Add(dataGridView);
+        splitContainer.Panel1.Controls.Add(gridBar);
+
+        // Comment bar + text (bottom panel)
+        copyCommentButton.AutoSize = true;
+        copyCommentButton.Enabled = false;
+        copyCommentButton.Name = "copyCommentButton";
+        copyCommentButton.Text = "Copy comment";
+        copyCommentButton.UseVisualStyleBackColor = true;
+        copyCommentButton.Click += copyCommentButton_Click;
+
+        commentBar.Dock = DockStyle.Top;
+        commentBar.Height = 32;
+        commentBar.Name = "commentBar";
+        commentBar.Padding = new Padding(0, 2, 0, 2);
+        commentBar.Controls.Add(copyCommentButton);
+        copyCommentButton.Location = new Point(0, 2);
+
         commentTextBox.Dock = DockStyle.Fill;
         commentTextBox.Multiline = true;
         commentTextBox.Name = "commentTextBox";
@@ -76,6 +113,7 @@ partial class GridAndCommentView
         commentTextBox.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
         splitContainer.Panel2.Controls.Add(commentTextBox);
+        splitContainer.Panel2.Controls.Add(commentBar);
 
         splitContainer.Panel1.ResumeLayout(false);
         splitContainer.Panel2.ResumeLayout(false);
